@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-import { FontAwesome5, Ionicons } from "@expo/vector-icons";
+import Icon, { IconName } from "../components/Icon";
 
 import { COLORS } from "../constants/colors";
 import { Screen } from "../types";
@@ -23,36 +23,43 @@ export default function BurgerMenu({
     return null;
   }
 
-  const items = [
+  const items: {
+    icon: IconName;
+    label: string;
+    screen: Screen;
+  }[] = [
     {
-      icon: "home",
+      icon: "spriteHome",
       label: "Home",
-      screen: "home" as Screen,
+      screen: "home",
     },
     {
-      icon: "mug-hot",
+      icon: "spriteMenu",
       label: "Menu",
-      screen: "menu" as Screen,
+      screen: "menu",
     },
     {
-      icon: "shopping-cart",
+      icon: "spriteCart",
       label: "My Order",
-      screen: "cart" as Screen,
+      screen: "cart",
     },
     {
-      icon: "map-marker-alt",
+      icon: "spriteCafe",
       label: "Café",
-      screen: "cafe" as Screen,
+      screen: "cafe",
     },
   ];
 
-  const socials = [
+  const socials: {
+    icon: IconName;
+    label: string;
+  }[] = [
     {
       icon: "instagram",
       label: "Instagram",
     },
     {
-      icon: "facebook-f",
+      icon: "facebook",
       label: "Facebook",
     },
     {
@@ -79,7 +86,7 @@ export default function BurgerMenu({
             onPress={onClose}
             style={styles.closeButton}
           >
-            <Ionicons name="close" size={20} color={COLORS.white} />
+            <Icon name="revers" size={19} color={COLORS.white} />
           </TouchableOpacity>
         </View>
 
@@ -103,12 +110,7 @@ export default function BurgerMenu({
               style={styles.navigationItem}
             >
               <View style={styles.navigationIcon}>
-                <FontAwesome5
-                  name={item.icon as any}
-                  size={15}
-                  color={COLORS.white}
-                  solid
-                />
+                <Icon name={item.icon} size={17} color={COLORS.white} />
               </View>
 
               <Text style={styles.navigationText}>{item.label}</Text>
@@ -125,7 +127,7 @@ export default function BurgerMenu({
             style={styles.changeOrder}
           >
             <View style={styles.navigationIcon}>
-              <Ionicons name="refresh" size={17} color={COLORS.white} />
+              <Icon name="revers" size={19} color={COLORS.white} />
             </View>
 
             <Text style={styles.changeOrderText}>Change order type</Text>
@@ -141,11 +143,10 @@ export default function BurgerMenu({
               style={styles.socialItem}
             >
               <View style={styles.socialIcon}>
-                <FontAwesome5
-                  name={item.icon as any}
-                  size={14}
+                <Icon
+                  name={item.icon}
+                  size={16}
                   color="rgba(255,255,255,0.72)"
-                  brand
                 />
               </View>
 
@@ -192,8 +193,10 @@ const styles = StyleSheet.create({
 
   logo: {
     color: COLORS.white,
-    fontSize: 21,
-    fontWeight: "500",
+    fontFamily: "DM Serif Display",
+    fontSize: 40,
+    fontWeight: "400",
+    lineHeight: 44,
   },
 
   closeButton: {
@@ -242,10 +245,10 @@ const styles = StyleSheet.create({
   },
 
   navigationIcon: {
-    width: 18,
+    width: 20,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 11,
+    marginRight: 10,
   },
 
   navigationText: {
@@ -284,10 +287,10 @@ const styles = StyleSheet.create({
   },
 
   socialIcon: {
-    width: 18,
+    width: 20,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 11,
+    marginRight: 10,
   },
 
   socialText: {

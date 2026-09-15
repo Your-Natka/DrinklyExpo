@@ -18,7 +18,12 @@ export default function MenuCard({ drink, onPress }: MenuCardProps) {
       onPress={onPress}
       style={styles.card}
     >
-      <Image source={{ uri: drink.image }} style={styles.image} />
+      <Image
+        source={
+          typeof drink.image === "number" ? drink.image : { uri: drink.image }
+        }
+        style={styles.image}
+      />
 
       <View style={styles.info}>
         <Text style={styles.name}>{drink.name}</Text>

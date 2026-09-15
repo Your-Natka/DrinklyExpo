@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  Linking,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -7,6 +8,8 @@ import {
   useWindowDimensions,
 } from "react-native";
 
+import Icon, { IconName } from "../components/Icon";
+import { COLORS } from "../constants/colors";
 import { Screen } from "../types";
 
 interface BurgerMenuScreenProps {
@@ -18,30 +21,48 @@ interface BurgerMenuScreenProps {
 
 interface MenuItem {
   label: string;
-  icon: string;
+  icon: IconName;
   screen: Screen;
 }
 
 const menuItems: MenuItem[] = [
   {
     label: "Home",
-    icon: "⌂",
+    icon: "spriteHome",
     screen: "home",
   },
   {
     label: "Menu",
-    icon: "☕",
+    icon: "spriteMenu",
     screen: "menu",
   },
   {
     label: "My Order",
-    icon: "🛒",
+    icon: "spriteCart",
     screen: "cart",
   },
   {
     label: "Café",
-    icon: "📍",
+    icon: "spriteCafe",
     screen: "cafe",
+  },
+];
+
+const socialLinks = [
+  {
+    label: "Instagram",
+    icon: "instagram" as IconName,
+    url: "https://www.instagram.com/",
+  },
+  {
+    label: "Facebook",
+    icon: "facebook" as IconName,
+    url: "https://www.facebook.com/",
+  },
+  {
+    label: "TikTok",
+    icon: "tiktok" as IconName,
+    url: "https://www.tiktok.com/",
   },
 ];
 
@@ -59,6 +80,18 @@ export default function BurgerMenuScreen({
 
   const drawerWidth = Math.min(width * 0.74, 310);
 
+  const handleSocialPress = async (url: string) => {
+    try {
+      const supported = await Linking.canOpenURL(url);
+
+      if (supported) {
+        await Linking.openURL(url);
+      }
+    } catch {
+      // Ignore link errors.
+    }
+  };
+
   return (
     <View style={styles.overlay}>
       <TouchableOpacity
@@ -68,69 +101,101 @@ export default function BurgerMenuScreen({
       />
 
       <View style={[styles.drawer, { width: drawerWidth }]}>
+        {/* Logo */}
         <View style={styles.logoRow}>
-          <Text style={styles.logo}>Drinkly</Text>
+          <View style={styles.logoBlock}>
+            <Text style={styles.logo}>Drinkly</Text>
 
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Text style={styles.closeText}>×</Text>
+            <Text style={styles.logoSubtitle}>Café & Bar</Text>
+          </View>
+
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={onClose}
+            style={styles.closeButton}
+          >
+            <Icon name="close" size={17} color={COLORS.white} />
           </TouchableOpacity>
         </View>
 
+        {/* Location */}
         <View style={styles.location}>
           <Text style={styles.locationLabel}>LOCATION</Text>
 
           <Text style={styles.locationValue}>Coffee Street 12, Łódź</Text>
         </View>
 
+        {/* Navigation */}
         <View style={styles.navigation}>
           {menuItems.map((item) => (
             <TouchableOpacity
               key={item.label}
-              activeOpacity={0.8}
+              activeOpacity={0.75}
               onPress={() => {
                 onNavigate(item.screen);
                 onClose();
               }}
               style={styles.menuItem}
             >
-              <Text style={styles.menuIcon}>{item.icon}</Text>
+              <View style={styles.menuIconBox}>
+                <Icon name={item.icon} size={19} color={COLORS.white} />
+              </View>
 
               <Text style={styles.menuText}>{item.label}</Text>
             </TouchableOpacity>
           ))}
 
+          {/* Change order type */}
           <TouchableOpacity
-            activeOpacity={0.8}
+            activeOpacity={0.75}
             onPress={() => {
               onStartOver();
               onClose();
             }}
             style={styles.changeButton}
           >
-            <Text style={styles.changeIcon}>↻</Text>
+            <Icon name="revers" size={17} color={COLORS.primary} />
 
             <Text style={styles.changeText}>Change order type</Text>
           </TouchableOpacity>
 
           <View style={styles.divider} />
 
-          <SocialItem icon="◎" label="Instagram" />
-
-          <SocialItem icon="f" label="Facebook" />
-
-          <SocialItem icon="♪" label="TikTok" />
+          {/* Social links */}
+          {socialLinks.map((social) => (
+            <SocialItem
+              key={social.label}
+              label={social.label}
+              icon={social.icon}
+              onPress={() => handleSocialPress(social.url)}
+            />
+          ))}
         </View>
 
-        <Text style={styles.footer}>Drinkly · Łódź · 2026</Text>
+        <Text style={styles.footer}>Drinkly · Warszawa · 2026</Text>
       </View>
     </View>
   );
 }
 
-function SocialItem({ icon, label }: { icon: string; label: string }) {
+function SocialItem({
+  label,
+  icon,
+  onPress,
+}: {
+  label: string;
+  icon: IconName;
+  onPress: () => void;
+}) {
   return (
-    <TouchableOpacity style={styles.socialItem} activeOpacity={0.8}>
-      <Text style={styles.socialIcon}>{icon}</Text>
+    <TouchableOpacity
+      activeOpacity={0.6}
+      onPress={onPress}
+      style={styles.socialItem}
+    >
+      <View style={styles.socialIcon}>
+        <Icon name={icon} size={17} color="#D7E0D8" />
+      </View>
 
       <Text style={styles.socialText}>{label}</Text>
     </TouchableOpacity>
@@ -151,7 +216,7 @@ const styles = StyleSheet.create({
 
   drawer: {
     height: "100%",
-    backgroundColor: "#557968",
+    backgroundColor: COLORS.primary,
     paddingTop: 48,
     paddingBottom: 22,
     zIndex: 101,
@@ -164,10 +229,27 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
 
+  logoBlock: {
+    flexDirection: "column",
+    alignItems: "baseline",
+    flexShrink: 1,
+  },
+
   logo: {
-    color: "#FFFFFF",
-    fontSize: 24,
+    color: COLORS.white,
+    fontFamily: "DM Serif Display",
+    fontSize: 40,
+    fontWeight: "400",
+    lineHeight: 44,
+  },
+
+  logoSubtitle: {
+    marginLeft: 7,
+    color: "rgba(255,255,255,0.82)",
+    fontFamily: "Inter",
+    fontSize: 12,
     fontWeight: "500",
+    lineHeight: 16,
   },
 
   closeButton: {
@@ -177,12 +259,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.18)",
     alignItems: "center",
     justifyContent: "center",
-  },
-
-  closeText: {
-    color: "#FFFFFF",
-    fontSize: 24,
-    lineHeight: 25,
+    marginLeft: 8,
   },
 
   location: {
@@ -202,7 +279,7 @@ const styles = StyleSheet.create({
   },
 
   locationValue: {
-    color: "#FFFFFF",
+    color: COLORS.white,
     fontSize: 10,
   },
 
@@ -220,11 +297,10 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
 
-  menuIcon: {
+  menuIconBox: {
     width: 24,
-    color: "#FFFFFF",
-    fontSize: 17,
-    textAlign: "center",
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   menuText: {
@@ -245,14 +321,14 @@ const styles = StyleSheet.create({
 
   changeIcon: {
     width: 24,
-    color: "#FFFFFF",
+    color: COLORS.white,
     fontSize: 18,
     textAlign: "center",
   },
 
   changeText: {
     marginLeft: 9,
-    color: "#FFFFFF",
+    color: COLORS.white,
     fontSize: 10,
   },
 
@@ -271,14 +347,13 @@ const styles = StyleSheet.create({
 
   socialIcon: {
     width: 24,
-    color: "rgba(255,255,255,0.72)",
-    fontSize: 15,
-    textAlign: "center",
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   socialText: {
     marginLeft: 9,
-    color: "rgba(255,255,255,0.72)",
+    color: "#D7E0D8",
     fontSize: 10,
   },
 

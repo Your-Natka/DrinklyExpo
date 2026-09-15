@@ -15,7 +15,9 @@ export type PaymentMethod = "card" | "cash";
 
 export type Category = "Coffee" | "Tea" | "Cold Drinks" | "Juice" | "Water";
 
-export type MenuCategory = "All" | "Coffee" | "Tea" | "Others";
+export type MenuCategory = "All" | "Hot Drinks" | "Cold Drinks" | "Others";
+
+export type HomeCategory = "All" | "Hot Drinks" | "Cold Drinks" | "Others";
 
 export type DrinkSize = "Small" | "Medium" | "Large";
 
@@ -29,7 +31,8 @@ export interface Drink {
   description: string;
   price: number;
   category: Category;
-  image: string;
+  menuCategory: MenuCategory;
+  image: string | number;
   popular?: boolean;
   tag?: string;
 }

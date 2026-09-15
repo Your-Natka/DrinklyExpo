@@ -1,7 +1,21 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
+} from "react-native";
 
 import Button from "../components/Button";
+import Header from "../components/Header";
+import Icon from "../components/Icon";
+import StatusBar from "../components/StatusBar";
+
+import { dimensions } from "../constants/dimensions";
+import { COLORS } from "../constants/colors";
 import { CartItem, OrderMode, PaymentMethod } from "../types";
 import { getCartItemTotal } from "../utils/price";
 
@@ -9,6 +23,7 @@ interface CheckoutScreenProps {
   items: CartItem[];
   mode: OrderMode;
   onBack: () => void;
+  onChangeOrderMode: (mode: OrderMode) => void;
   onConfirm: (paymentMethod: PaymentMethod) => void;
 }
 
@@ -16,8 +31,13 @@ export default function CheckoutScreen({
   items,
   mode,
   onBack,
+  onChangeOrderMode,
   onConfirm,
 }: CheckoutScreenProps) {
+  const { width } = useWindowDimensions();
+
+  const horizontalPadding =
+    width <= 340 ? 14 : dimensions.layout.horizontalPadding;
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
 
   const subtotal = items.reduce(
@@ -26,73 +46,144 @@ export default function CheckoutScreen({
     0,
   );
 
-  const fee = mode === "takeaway" ? 0.5 : 0;
+  const takeawayFee = mode === "takeaway" ? 0.5 : 0;
 
-  const total = subtotal + fee;
+  const total = subtotal + takeawayFee;
+
+  const handleChangeOrderMode = () => {
+    onChangeOrderMode(mode === "dine-in" ? "takeaway" : "dine-in");
+  };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <Text style={styles.backText}>‹</Text>
-        </TouchableOpacity>
+    <View style={styles.screen}>
+      <StatusBar />
 
-        <Text style={styles.title}>Checkout</Text>
+      <Header
+        title="Checkout"
+        onBack={onBack}
+        backButtonStyle={{
+          backgroundColor: COLORS.white,
+        }}
+      />
 
-        <View style={styles.spacer} />
-      </View>
-
-      <View style={styles.content}>
-        <Text style={styles.sectionTitle}>Delivery method</Text>
-
-        <View style={styles.row}>
-          <ChoiceButton
-            label="Pick up"
-            active={mode === "dine-in"}
-            onPress={() => {}}
-          />
-
-          <ChoiceButton
-            label="Takeaway"
-            active={mode === "takeaway"}
-            onPress={() => {}}
-          />
-        </View>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[
+          styles.content,
+          { paddingHorizontal: horizontalPadding },
+        ]}
+      >
+        {/* PICKUP LOCATION */}
 
         <Text style={styles.sectionTitle}>Pickup location</Text>
 
         <View style={styles.locationCard}>
-          <Text style={styles.locationIcon}>📍</Text>
+          <View style={styles.locationIcon}>
+            <Icon name="coffee" size={19} color={COLORS.primary} />
+          </View>
 
-          <View>
+          <View style={styles.locationInfo}>
             <Text style={styles.locationTitle}>Coffee Street 12</Text>
 
             <Text style={styles.locationText}>Drinkly Café · Łódź</Text>
           </View>
         </View>
 
+        {/* ORDER TYPE */}
+
+        <Text style={styles.sectionTitle}>Order type</Text>
+
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={handleChangeOrderMode}
+          style={styles.orderTypeCard}
+        >
+          <View style={styles.orderTypeLeft}>
+            <View style={styles.radio}>
+              <View style={styles.radioInner} />
+            </View>
+
+            <Text style={styles.orderTypeText}>
+              {mode === "dine-in" ? "Dine in" : "Takeaway"}
+            </Text>
+          </View>
+
+          <View style={styles.changeMode}>
+            <Icon name="revers" size={17} color={COLORS.primaryMid} />
+
+            <Text style={styles.changeText}>Change</Text>
+          </View>
+        </TouchableOpacity>
+
+        {/* YOUR ORDER */}
+
+        <Text style={styles.sectionTitle}>Your order</Text>
+
+        <View style={styles.orderCard}>
+          {items.map((item, index) => {
+            const itemTotal = getCartItemTotal(
+              item.drink,
+              item.options,
+              item.quantity,
+            );
+
+            return (
+              <OrderItem
+                key={item.id}
+                item={item}
+                total={itemTotal}
+                isLast={index === items.length - 1}
+              />
+            );
+          })}
+        </View>
+
+        {/* PAYMENT */}
+
         <Text style={styles.sectionTitle}>Payment method</Text>
 
-        <View style={styles.row}>
-          <ChoiceButton
+        <View style={styles.paymentRow}>
+          <PaymentButton
             label="Card"
             active={paymentMethod === "card"}
             onPress={() => setPaymentMethod("card")}
           />
 
-          <ChoiceButton
+          <PaymentButton
             label="Cash"
             active={paymentMethod === "cash"}
             onPress={() => setPaymentMethod("cash")}
           />
         </View>
 
-        <View style={styles.totalRow}>
-          <Text style={styles.totalLabel}>Total</Text>
+        {/* PRICE SUMMARY */}
 
-          <Text style={styles.totalValue}>€{total.toFixed(2)}</Text>
+        <View style={styles.summary}>
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Subtotal</Text>
+
+            <Text style={styles.summaryValue}>€{subtotal.toFixed(2)}</Text>
+          </View>
+
+          {takeawayFee > 0 && (
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Takeaway fee</Text>
+
+              <Text style={styles.summaryValue}>€{takeawayFee.toFixed(2)}</Text>
+            </View>
+          )}
+
+          <View style={styles.divider} />
+
+          <View style={styles.totalRow}>
+            <Text style={styles.totalLabel}>Total</Text>
+
+            <Text style={styles.totalValue}>€{total.toFixed(2)}</Text>
+          </View>
         </View>
-      </View>
+      </ScrollView>
+
+      {/* PLACE ORDER */}
 
       <View style={styles.bottom}>
         <Button title="Place order" onPress={() => onConfirm(paymentMethod)} />
@@ -101,7 +192,54 @@ export default function CheckoutScreen({
   );
 }
 
-function ChoiceButton({
+/* ================================================== */
+/* ORDER ITEM */
+/* ================================================== */
+
+function OrderItem({
+  item,
+  total,
+  isLast,
+}: {
+  item: CartItem;
+  total: number;
+  isLast: boolean;
+}) {
+  return (
+    <View style={[styles.orderItem, isLast && styles.orderItemLast]}>
+      <Image
+        source={
+          typeof item.drink.image === "number"
+            ? item.drink.image
+            : { uri: item.drink.image }
+        }
+        style={styles.orderImage}
+      />
+
+      <View style={styles.orderInfo}>
+        <View style={styles.orderTop}>
+          <Text numberOfLines={1} style={styles.orderName}>
+            {item.drink.name}
+          </Text>
+
+          <Text style={styles.orderPrice}>€{total.toFixed(2)}</Text>
+        </View>
+
+        <Text numberOfLines={2} style={styles.orderOptions}>
+          {item.optionLabel}
+        </Text>
+
+        <Text style={styles.orderQuantity}>Quantity · {item.quantity}</Text>
+      </View>
+    </View>
+  );
+}
+
+/* ================================================== */
+/* PAYMENT BUTTON */
+/* ================================================== */
+
+function PaymentButton({
   label,
   active,
   onPress,
@@ -114,173 +252,318 @@ function ChoiceButton({
     <TouchableOpacity
       activeOpacity={0.8}
       onPress={onPress}
-      style={[styles.choice, active && styles.choiceActive]}
+      style={[styles.paymentButton, active && styles.paymentButtonActive]}
     >
-      <View style={[styles.radio, active && styles.radioActive]}>
-        {active && <View style={styles.radioInner} />}
+      <View style={[styles.paymentRadio, active && styles.paymentRadioActive]}>
+        {active && <View style={styles.paymentRadioInner} />}
       </View>
 
-      <Text style={[styles.choiceText, active && styles.choiceTextActive]}>
+      <Text style={[styles.paymentText, active && styles.paymentTextActive]}>
         {label}
       </Text>
     </TouchableOpacity>
   );
 }
 
+/* ================================================== */
+/* STYLES */
+/* ================================================== */
+
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
-    backgroundColor: "#F8F8F6",
+    backgroundColor: COLORS.searchBackground,
+    gap: dimensions.spacing.md,
   },
 
-  header: {
-    height: 76,
-    paddingHorizontal: 14,
+  content: {
+    paddingBottom: 115,
+  },
+
+  sectionTitle: {
+    marginTop: 10,
+    marginBottom: 8,
+    color: COLORS.text,
+    fontSize: dimensions.typography.body,
+    fontWeight: "600",
+  },
+
+  /* LOCATION */
+
+  locationCard: {
+    minHeight: 64,
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+    borderRadius: dimensions.cards.radius,
+    backgroundColor: COLORS.white,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  locationIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: COLORS.primaryLight,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 10,
+  },
+
+  locationInfo: {
+    flex: 1,
+    minWidth: 0,
+  },
+
+  locationTitle: {
+    marginTop: 3,
+    color: COLORS.muted,
+    fontSize: dimensions.typography.extraSmall,
+  },
+
+  locationText: {
+    marginTop: 3,
+    color: COLORS.muted,
+    fontSize: dimensions.typography.extraSmall,
+  },
+
+  /* ORDER TYPE */
+
+  orderTypeCard: {
+    minHeight: 48,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: dimensions.cards.radius,
+    backgroundColor: COLORS.white,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
 
-  backButton: {
-    width: 34,
-    height: 34,
-    borderRadius: 6,
-    backgroundColor: "#FFFFFF",
+  orderTypeLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+
+  radio: {
+    width: 14,
+    height: 14,
+    borderRadius: dimensions.cards.radius,
+    borderWidth: 1,
+    borderColor: COLORS.primary,
     alignItems: "center",
     justifyContent: "center",
   },
 
-  backText: {
-    fontSize: 28,
-    color: "#557968",
+  radioInner: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: COLORS.primary,
   },
 
-  title: {
-    fontSize: 20,
-    color: "#557968",
+  orderTypeText: {
+    color: COLORS.primary,
+    fontSize: dimensions.typography.small,
+    fontWeight: "600",
+  },
+
+  changeMode: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+  },
+
+  changeText: {
+    color: COLORS.primary,
+    fontSize: dimensions.typography.extraSmall,
     fontWeight: "500",
   },
 
-  spacer: {
-    width: 34,
+  paymentRadio: {
+    width: 14,
+    height: 14,
+    borderRadius: dimensions.cards.radius,
+    borderWidth: 1,
+    borderColor: COLORS.muted,
+    alignItems: "center",
+    justifyContent: "center",
   },
 
-  content: {
-    paddingHorizontal: 18,
+  paymentRadioActive: {
+    borderColor: COLORS.primary,
   },
 
-  sectionTitle: {
-    marginTop: 15,
-    marginBottom: 8,
-    fontSize: 12,
+  paymentRadioInner: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: COLORS.primary,
+  },
+
+  /* ORDER */
+
+  orderCard: {
+    backgroundColor: COLORS.white,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: dimensions.cards.radius,
+    paddingHorizontal: 10,
+  },
+
+  orderItem: {
+    minHeight: 76,
+    paddingVertical: 9,
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.searchBorder,
+  },
+
+  orderItemLast: {
+    borderBottomWidth: 0,
+  },
+
+  orderImage: {
+    width: dimensions.images.cartItem.width,
+    height: dimensions.images.cartItem.height,
+    borderRadius: 5,
+    backgroundColor: COLORS.quantityBackground,
+    marginRight: 9,
+  },
+
+  orderInfo: {
+    flex: 1,
+    minWidth: 0,
+    justifyContent: "center",
+  },
+
+  orderTop: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+
+  orderName: {
+    flex: 1,
+    marginRight: 8,
+    color: COLORS.text,
+    fontSize: dimensions.typography.small,
     fontWeight: "600",
-    color: "#456456",
   },
 
-  row: {
+  orderPrice: {
+    color: COLORS.primary,
+    fontSize: dimensions.typography.small,
+    fontWeight: "600",
+  },
+
+  orderOptions: {
+    marginTop: 4,
+    color: COLORS.muted,
+    fontSize: dimensions.typography.extraSmall,
+    lineHeight: 12,
+  },
+
+  orderQuantity: {
+    marginTop: 3,
+    color: COLORS.textSecondary,
+    fontSize: dimensions.typography.extraSmall,
+  },
+
+  /* PAYMENT */
+
+  paymentRow: {
     flexDirection: "row",
     gap: 8,
   },
 
-  choice: {
+  paymentButton: {
     flex: 1,
     height: 42,
     borderWidth: 1,
-    borderColor: "#B9C9C0",
+    borderColor: COLORS.border,
     borderRadius: 6,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.white,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 7,
   },
 
-  choiceActive: {
-    borderColor: "#557968",
-    backgroundColor: "#E5ECE7",
+  paymentButtonActive: {
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.primaryLight,
   },
 
-  radio: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: "#8A9891",
-    alignItems: "center",
-    justifyContent: "center",
+  paymentText: {
+    color: COLORS.textSecondary,
+    fontSize: dimensions.typography.extraSmall,
   },
 
-  radioActive: {
-    borderColor: "#557968",
-  },
-
-  radioInner: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "#557968",
-  },
-
-  choiceText: {
-    fontSize: 10,
-    color: "#456456",
-  },
-
-  choiceTextActive: {
-    color: "#557968",
+  paymentTextActive: {
+    color: COLORS.primary,
     fontWeight: "600",
   },
 
-  locationCard: {
-    minHeight: 58,
-    borderRadius: 7,
-    backgroundColor: "#FFFFFF",
-    borderWidth: 1,
-    borderColor: "#EEF0ED",
-    paddingHorizontal: 12,
+  /* SUMMARY */
+
+  summary: {
+    marginTop: 16,
+    paddingHorizontal: 2,
+  },
+
+  summaryRow: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 7,
   },
 
-  locationIcon: {
-    fontSize: 18,
-    marginRight: 10,
+  summaryLabel: {
+    color: COLORS.textSecondary,
+    fontSize: dimensions.typography.extraSmall,
   },
 
-  locationTitle: {
-    fontSize: 11,
-    color: "#456456",
+  summaryValue: {
+    color: COLORS.text,
+    fontSize: dimensions.typography.extraSmall,
     fontWeight: "500",
   },
 
-  locationText: {
-    marginTop: 2,
-    fontSize: 9,
-    color: "#8A9891",
+  divider: {
+    height: 1,
+    backgroundColor: COLORS.border,
+    marginVertical: 8,
   },
 
   totalRow: {
-    marginTop: 34,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
 
   totalLabel: {
-    fontSize: 16,
+    color: COLORS.text,
+    fontSize: dimensions.typography.small,
     fontWeight: "600",
-    color: "#456456",
   },
 
   totalValue: {
-    fontSize: 17,
+    color: COLORS.primary,
+    fontSize: dimensions.typography.small,
     fontWeight: "700",
-    color: "#557968",
   },
 
+  /* BOTTOM */
+
   bottom: {
-    marginTop: "auto",
-    padding: 18,
-    paddingBottom: 24,
+    position: "absolute",
+    left: 14,
+    right: 14,
+    bottom: 20,
   },
 });

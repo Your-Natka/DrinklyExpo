@@ -1,8 +1,14 @@
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
+} from "react-native";
 
-import Icon from "./Icon";
-
+import { dimensions } from "../constants/dimensions";
+import Icon, { IconName } from "./Icon";
 import { COLORS } from "../constants/colors";
 import { Screen } from "../types";
 
@@ -12,68 +18,79 @@ interface BottomNavigationProps {
   onNavigate: (screen: Screen) => void;
 }
 
+interface NavigationItem {
+  screen: Screen;
+  label: string;
+  icon: IconName;
+}
+
+const items: NavigationItem[] = [
+  {
+    screen: "home",
+    label: "Home",
+    icon: "spriteHome",
+  },
+  {
+    screen: "menu",
+    label: "Menu",
+    icon: "spriteMenu",
+  },
+  {
+    screen: "cafe",
+    label: "Cafe",
+    icon: "spriteCafe",
+  },
+  {
+    screen: "cart",
+    label: "Cart",
+    icon: "spriteCart",
+  },
+];
+
 export default function BottomNavigation({
   activeScreen,
   cartCount,
   onNavigate,
 }: BottomNavigationProps) {
-  const items = [
-    {
-      screen: "home" as Screen,
-      label: "Home",
-      icon: "home" as const,
-    },
-    {
-      screen: "menu" as Screen,
-      label: "Menu",
-      icon: "coffee" as const,
-    },
-    {
-      screen: "cart" as Screen,
-      label: "Cart",
-      icon: "cart" as const,
-    },
-  ];
+  const { width } = useWindowDimensions();
 
+  const horizontalPadding = width <= 340 ? 6 : 12;
   return (
     <View style={styles.container}>
-      {items.map((item) => {
-        const active = activeScreen === item.screen;
+      <View
+        style={[styles.navigation, { paddingHorizontal: horizontalPadding }]}
+      >
+        {items.map((item) => {
+          const active = activeScreen === item.screen;
 
-        return (
-          <TouchableOpacity
-            key={item.screen}
-            activeOpacity={0.8}
-            onPress={() => onNavigate(item.screen)}
-            style={styles.item}
-          >
-            <View style={styles.iconWrapper}>
-              <Icon
-                name={item.icon}
-                size={17}
-                color={active ? COLORS.primary : COLORS.muted}
-              />
-
-              {item.screen === "cart" && cartCount > 0 && (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>{cartCount}</Text>
-                </View>
-              )}
-            </View>
-
-            <Text
-              style={[
-                styles.label,
-                {
-                  color: active ? COLORS.primary : COLORS.muted,
-                },
-              ]}
+          return (
+            <TouchableOpacity
+              key={item.screen}
+              activeOpacity={0.8}
+              onPress={() => onNavigate(item.screen)}
+              style={styles.item}
             >
-              {item.label}
-            </Text>
-          </TouchableOpacity>
-        );
-      })}
+              <View style={styles.iconWrapper}>
+                <Icon
+                  name={item.icon}
+                  size={22}
+                  color={active ? COLORS.primary : "#B7C8BC"}
+                />
+
+                {item.screen === "cart" && cartCount > 0 && (
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeText}>{cartCount}</Text>
+                  </View>
+                )}
+              </View>
+
+              <Text style={[styles.label, active && styles.activeLabel]}>
+                {item.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
     </View>
   );
 }
@@ -84,42 +101,53 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    height: 61,
+    height: 76,
     backgroundColor: COLORS.white,
     borderTopWidth: 1,
-    borderTopColor: "#E6EBE7",
+    borderTopColor: "#EEF0ED",
+  },
+
+  navigation: {
+    flex: 1,
     flexDirection: "row",
-    justifyContent: "space-around",
     alignItems: "center",
-    paddingBottom: 5,
+    justifyContent: "space-around",
+    paddingHorizontal: 12,
   },
 
   item: {
-    width: 80,
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    height: "100%",
   },
 
   iconWrapper: {
-    width: 22,
-    height: 22,
+    position: "relative",
     alignItems: "center",
     justifyContent: "center",
-    position: "relative",
+    height: 28,
+    marginBottom: 3,
   },
 
   label: {
-    fontSize: 8,
-    marginTop: 2,
+    fontSize: 10,
+    fontWeight: "500",
+    color: "#B7C8BC",
+  },
+
+  activeLabel: {
+    color: COLORS.primary,
   },
 
   badge: {
     position: "absolute",
-    right: -6,
     top: -5,
-    minWidth: 13,
-    height: 13,
-    borderRadius: 7,
+    right: -10,
+    minWidth: 15,
+    height: 15,
+    paddingHorizontal: 3,
+    borderRadius: 8,
     backgroundColor: COLORS.primary,
     alignItems: "center",
     justifyContent: "center",
@@ -127,7 +155,8 @@ const styles = StyleSheet.create({
 
   badgeText: {
     color: COLORS.white,
-    fontSize: 7,
+    fontSize: 8,
     fontWeight: "700",
+    textAlign: "center",
   },
 });

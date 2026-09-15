@@ -1,56 +1,246 @@
-# Welcome to your Expo app 👋
+Drinkly — React Native Components
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A mobile-first drink ordering application built with React Native and Expo.
 
-## Get started
+Drinkly allows users to browse drinks, view drink details, customize their order, manage the cart, choose an order type and complete the checkout process.
 
-1. Install dependencies
+📱 Preview
+Welcome
 
-   ```bash
+Home
+
+Menu
+
+Drink Details
+
+Cart
+
+Checkout
+
+Order Confirmation
+
+✨ Features
+Welcome screen
+Home screen with popular drinks
+Drink categories
+Search drinks
+Drink details
+Drink customization
+Add drinks to cart
+Quantity controls
+Remove items from cart
+Dine-in and takeaway order types
+Checkout
+Payment method selection
+Order confirmation
+Café information
+Bottom navigation
+Responsive mobile layout
+🛠️ Technologies
+React Native
+Expo
+TypeScript
+Expo Router
+React Hooks
+React Native StyleSheet
+Flexbox
+🧩 Reusable Components
+
+The application is built using reusable React Native components.
+
+Examples:
+
+Header
+StatusBar
+Button
+DrinkCard
+MenuCard
+CartItem
+CategoryTabs
+SearchBar
+QuantityControl
+OptionButton
+CheckoutChoice
+SummaryRow
+BottomNavigation
+Icon
+
+Components receive data and callbacks through props, which makes them reusable across different screens.
+
+📂 Project Structure
+src/
+├── app/
+│ ├── \_layout.tsx
+│ ├── index.tsx
+│ └── explore.tsx
+│
+├── components/
+│ ├── BottomNavigation.tsx
+│ ├── Button.tsx
+│ ├── CartItem.tsx
+│ ├── CategoryTabs.tsx
+│ ├── CheckoutChoice.tsx
+│ ├── DrinkCard.tsx
+│ ├── Header.tsx
+│ ├── Icon.tsx
+│ ├── MenuCard.tsx
+│ ├── OptionButton.tsx
+│ ├── QuantityControl.tsx
+│ ├── SearchBar.tsx
+│ ├── StatusBar.tsx
+│ └── SummaryRow.tsx
+│
+├── constants/
+│ ├── colors.ts
+│ ├── dimensions.ts
+│ ├── theme.ts
+│ └── typography.ts
+│
+├── data/
+│ └── drinks.ts
+│
+├── navigation/
+│ └── AppNavigation.tsx
+│
+├── pages/
+│ ├── Welcome.tsx
+│ ├── Home.tsx
+│ ├── Menu.tsx
+│ ├── DrinkDetails.tsx
+│ ├── Cart.tsx
+│ ├── Checkout.tsx
+│ ├── PaymentMethod.tsx
+│ ├── OrderConfirmation.tsx
+│ └── Cafe.tsx
+│
+├── types/
+│ └── index.ts
+│
+└── utils/
+├── options.ts
+└── price.ts
+🎨 Styling
+
+The project uses React Native's StyleSheet.create() for component styling.
+
+Reusable design values are stored in separate constants:
+
+colors
+spacing
+dimensions
+typography
+
+This helps keep the interface consistent and reduces duplicated values and magic numbers.
+
+📱 Mobile Responsive Design
+
+Drinkly is designed as a mobile-first application for smartphones.
+
+The main design target is the iPhone 17 screen size. The interface uses responsive React Native components so that the same layout adapts to different smartphone screen widths.
+
+The application was tested at:
+
+Width Purpose
+320 px Small smartphone
+375 px Compact smartphone
+390 px Standard smartphone
+430 px Large smartphone
+Responsive techniques
+
+The application uses:
+
+useWindowDimensions()
+Flexbox
+flexible widths
+aspectRatio
+responsive card sizes
+ScrollView
+adaptive horizontal spacing
+reusable components
+
+The same UI components are used on both iOS and Android. No separate mobile layouts are created for different platforms.
+
+Responsive examples
+
+🚀 Getting Started
+
+1. Clone the repository
+   git clone <YOUR_REPOSITORY_URL>
+2. Go to the project directory
+   cd DrinklyExpo
+3. Install dependencies
    npm install
-   ```
+4. Start the development server
+   npx expo start
 
-2. Start the app
+To run the web version:
 
-   ```bash
-   npx expo start. npx expo start -c
-   ```
+npx expo start --web
+🔍 TypeScript Check
 
-In the output, you'll find options to open the app in a
+The project can be checked with:
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+npx tsc --noEmit
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+The application is developed with TypeScript to provide type safety for components, props, navigation, drinks and cart data.
 
-## Get a fresh project
+📋 Main User Flow
 
-When you're ready, run:
+### Welcome
 
-```bash
-npm run reset-project
-```
+![Welcome](./screenshots/WelcomePage.png)
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Home
 
-### Other setup steps
+![Home](./screenshots/HomePage.png)
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+### Menu
 
-## Learn more
+![Menu](./screenshots/MenuPage.png)
 
-To learn more about developing your project with Expo, look at the following resources:
+### Burger Menu
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+![Burger Menu](./screenshots/BurgerMenu.png)
 
-## Join the community
+### Drink Details
 
-Join our community of developers creating universal apps.
+![Drink Details](./screenshots/DrinkDetailsPage.png)
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### Add to Cart
+
+![Cart](./screenshots/CartPage.png)
+
+### Cart
+
+![Cart](./screenshots/CartNotOrder.png)
+
+### Checkout
+
+![Checkout](./screenshots/CheckOutPage.png)
+
+### Checkout
+
+![Checkout](./screenshots/CheckOutPage.png)
+
+### Order Confirmation
+
+![Order Confirmation](./screenshots/OrderConfirmationPage.png)
+
+Users can also navigate between the main sections using the bottom navigation.
+
+📚 Assignment
+
+This project was created as part of a React Native learning assignment focused on:
+
+React Native components
+component reusability
+props
+styling
+Flexbox
+responsive design
+mobile UI development
+TypeScript
+
+👩‍💻 Author
+
+Наталія Боднарчук

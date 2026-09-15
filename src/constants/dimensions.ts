@@ -1,14 +1,18 @@
 export const dimensions = {
-  phone: {
-    width: 390,
-    height: 844,
-    borderRadius: 42,
+  spacing: {
+    xs: 4,
+    sm: 6,
+    md: 8,
+    lg: 10,
+    xl: 14,
+    xxl: 18,
+    xxxl: 20,
   },
 
-  statusBar: {
-    height: 48,
-    paddingHorizontal: 20,
-    paddingTop: 13,
+  layout: {
+    horizontalPadding: 18,
+    contentMaxWidth: 430,
+    cardGap: 8,
   },
 
   buttons: {
@@ -26,8 +30,9 @@ export const dimensions = {
     menuCardHeight: 105,
 
     popularCard: {
-      width: 54,
-      height: 54,
+      minWidth: 135,
+      maxWidth: 160,
+      aspectRatio: 1,
     },
 
     cartItem: {
@@ -36,25 +41,20 @@ export const dimensions = {
     },
   },
 
-  spacing: {
-    xs: 4,
-    sm: 6,
-    md: 8,
-    lg: 10,
-    xl: 14,
-    xxl: 18,
-    xxxl: 20,
+  statusBar: {
+    height: 48,
+    paddingHorizontal: 18,
+    paddingTop: 13,
   },
 
   typography: {
-    welcomeTitle: 27,
-    pageTitle: 22,
-    appLogo: 22,
-    sectionTitle: 15,
+    welcomeTitle: 48,
+    pageTitle: 40,
+    sectionTitle: 19,
     body: 13,
-    small: 12,
-    extraSmall: 11,
-    tiny: 10,
+    small: 11,
+    extraSmall: 10,
+    tiny: 8,
   },
 } as const;
 

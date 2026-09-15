@@ -1,9 +1,10 @@
-import React from "react";
-import { StyleSheet, TextInput, View } from "react-native";
+import React, { useState } from "react";
+import { StyleSheet, TextInput, View, useWindowDimensions } from "react-native";
 
 import Icon from "./Icon";
 
 import { COLORS } from "../constants/colors";
+import { dimensions } from "../constants/dimensions";
 
 interface SearchBarProps {
   value: string;
@@ -16,18 +17,38 @@ export default function SearchBar({
   onChangeText,
   placeholder = "Search drinks...",
 }: SearchBarProps) {
+  const [focused, setFocused] = useState(false);
+  const { width } = useWindowDimensions();
+
+  const horizontalPadding =
+    width <= 340 ? 14 : dimensions.layout.horizontalPadding;
+
   return (
-    <View style={styles.container}>
-      <Icon name="search" size={16} color={COLORS.muted} />
+    <View
+      style={[
+        styles.container,
+        {
+          marginHorizontal: horizontalPadding,
+        },
+        focused && styles.containerFocused,
+      ]}
+    >
+      <Icon
+        name="search"
+        size={20}
+        color={focused ? COLORS.primary : COLORS.muted}
+      />
 
       <TextInput
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor="#A0AAA5"
+        placeholderTextColor={COLORS.inputPlaceholder}
         style={styles.input}
         autoCorrect={false}
         autoCapitalize="none"
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
       />
     </View>
   );
@@ -35,23 +56,27 @@ export default function SearchBar({
 
 const styles = StyleSheet.create({
   container: {
-    height: 34,
-    marginHorizontal: 18,
-    marginBottom: 10,
+    height: 44,
+    marginBottom: 14,
     paddingHorizontal: 10,
     borderRadius: 5,
     borderWidth: 1,
-    borderColor: "#EEF0ED",
-    backgroundColor: "#F8F8F6",
+    borderColor: COLORS.searchBorder,
+    backgroundColor: COLORS.searchBackground,
     flexDirection: "row",
     alignItems: "center",
   },
 
+  containerFocused: {
+    borderColor: COLORS.primary,
+  },
+
   input: {
     flex: 1,
+    minWidth: 0,
     color: COLORS.text,
-    fontSize: 10,
+    fontSize: 12,
     paddingVertical: 0,
-    marginLeft: 7,
+    marginLeft: 12,
   },
 });

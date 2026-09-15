@@ -30,6 +30,7 @@ export default function AppNavigation() {
   const [selectedDrink, setSelectedDrink] = useState<Drink | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [burgerOpen, setBurgerOpen] = useState(false);
+  const [favorites, setFavorites] = useState<string[]>([]);
 
   const previousScreen = useRef<Screen>("welcome");
 
@@ -105,6 +106,14 @@ export default function AppNavigation() {
     setBurgerOpen(false);
   };
 
+  const handleToggleFavorite = (drinkId: string) => {
+    setFavorites((current) =>
+      current.includes(drinkId)
+        ? current.filter((id) => id !== drinkId)
+        : [...current, drinkId],
+    );
+  };
+
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
@@ -117,6 +126,8 @@ export default function AppNavigation() {
           onNavigate={navigate}
           onMenuOpen={() => setBurgerOpen(true)}
           onDrinkSelect={handleDrinkSelect}
+          favorites={favorites}
+          onToggleFavorite={handleToggleFavorite}
         />
       )}
 
@@ -159,6 +170,7 @@ export default function AppNavigation() {
           items={cart}
           mode={orderMode}
           onBack={() => navigate("cart")}
+          onChangeOrderMode={setOrderMode}
           onConfirm={handleConfirmOrder}
         />
       )}

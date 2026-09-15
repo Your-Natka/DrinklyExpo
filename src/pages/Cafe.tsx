@@ -6,9 +6,13 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from "react-native";
 
 import CafeLink from "../components/CafeLink";
+import Icon from "../components/Icon";
+import StatusBar from "../components/StatusBar";
+
 import { COLORS } from "../constants/colors";
 import { dimensions } from "../constants/dimensions";
 
@@ -17,15 +21,20 @@ interface CafeScreenProps {
 }
 
 export default function CafeScreen({ onBack }: CafeScreenProps) {
+  const { width } = useWindowDimensions();
+  const horizontalPadding =
+    width <= 340 ? 14 : dimensions.layout.horizontalPadding;
+
   return (
     <View style={styles.screen}>
+      <StatusBar />
       <View style={styles.header}>
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={onBack}
           style={styles.backButton}
         >
-          <Text style={styles.backIcon}>‹</Text>
+          <Icon name="back" size={20} color={COLORS.primary} />
         </TouchableOpacity>
 
         <Text style={styles.headerTitle}>Café</Text>
@@ -37,7 +46,12 @@ export default function CafeScreen({ onBack }: CafeScreenProps) {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        <View style={styles.imageContainer}>
+        <View
+          style={[
+            styles.imageContainer,
+            { marginHorizontal: horizontalPadding },
+          ]}
+        >
           <Image
             source={{
               uri: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=700&h=400&fit=crop&auto=format",
@@ -46,10 +60,11 @@ export default function CafeScreen({ onBack }: CafeScreenProps) {
           />
         </View>
 
-        <View style={styles.info}>
-          <Text style={styles.cafeName}>Drinkly Café</Text>
-
-          <Text style={styles.address}>Coffee Street 12, Łódź</Text>
+        <View style={[styles.info, { paddingHorizontal: horizontalPadding }]}>
+          <View style={styles.logoBlock}>
+            <Text style={styles.logo}>Drinkly</Text>
+            <Text style={styles.logoSubtitle}>Café & Bar</Text>
+          </View>
 
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Opening hours</Text>
@@ -74,21 +89,18 @@ export default function CafeScreen({ onBack }: CafeScreenProps) {
             <Text style={styles.cardTitle}>Follow us</Text>
 
             <CafeLink
-              icon={<Text style={styles.socialIcon}>◎</Text>}
+              icon={<Icon name="instagram" size={19} color={COLORS.primary} />}
               label="@drinkly.cafe"
-              sublabel="Instagram"
             />
 
             <CafeLink
-              icon={<Text style={styles.socialIcon}>f</Text>}
+              icon={<Icon name="facebook" size={19} color={COLORS.primary} />}
               label="Drinkly Café"
-              sublabel="Facebook"
             />
 
             <CafeLink
-              icon={<Text style={styles.socialIcon}>♪</Text>}
+              icon={<Icon name="tiktok" size={19} color={COLORS.primary} />}
               label="@drinkly"
-              sublabel="TikTok"
               last
             />
           </View>
@@ -104,40 +116,35 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: COLORS.bg,
+    gap: dimensions.spacing.md,
   },
 
   header: {
-    height: 48,
+    height: 50,
     paddingHorizontal: 14,
     alignItems: "center",
     flexDirection: "row",
   },
 
   backButton: {
-    width: 30,
-    height: 30,
+    width: dimensions.buttons.icon,
+    height: dimensions.buttons.icon,
     borderRadius: 5,
     backgroundColor: COLORS.white,
     alignItems: "center",
     justifyContent: "center",
   },
 
-  backIcon: {
-    color: COLORS.primary,
-    fontSize: 25,
-    lineHeight: 28,
-  },
-
   headerTitle: {
     flex: 1,
     textAlign: "center",
     color: COLORS.primary,
-    fontSize: 19,
+    fontSize: dimensions.typography.sectionTitle,
     fontWeight: "500",
   },
 
   headerSpacer: {
-    width: 30,
+    width: dimensions.buttons.icon,
   },
 
   scrollContent: {
@@ -146,7 +153,6 @@ const styles = StyleSheet.create({
 
   imageContainer: {
     height: 150,
-    marginHorizontal: 14,
     borderRadius: dimensions.cards.radius,
     overflow: "hidden",
   },
@@ -157,21 +163,30 @@ const styles = StyleSheet.create({
   },
 
   info: {
-    paddingHorizontal: 14,
     paddingTop: 13,
   },
 
-  cafeName: {
-    color: COLORS.primary,
-    fontSize: 20,
-    fontWeight: "500",
-    marginBottom: 3,
+  logoBlock: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    marginBottom: 14,
   },
 
-  address: {
-    color: COLORS.muted,
-    fontSize: 9,
-    marginBottom: 15,
+  logo: {
+    color: COLORS.primary,
+    fontFamily: "DM Serif Display",
+    fontSize: 40,
+    fontWeight: "400",
+    lineHeight: 44,
+  },
+
+  logoSubtitle: {
+    marginLeft: 7,
+    color: COLORS.textSecondary,
+    fontFamily: "Inter",
+    fontSize: 12,
+    fontWeight: "500",
+    lineHeight: 16,
   },
 
   card: {
@@ -185,7 +200,7 @@ const styles = StyleSheet.create({
 
   cardTitle: {
     color: COLORS.text,
-    fontSize: 10,
+    fontSize: dimensions.typography.extraSmall,
     fontWeight: "600",
     marginBottom: 8,
   },
@@ -198,17 +213,12 @@ const styles = StyleSheet.create({
 
   rowLabel: {
     color: COLORS.textSecondary,
-    fontSize: 9,
+    fontSize: dimensions.typography.extraSmall,
   },
 
   rowValue: {
     color: COLORS.textSecondary,
-    fontSize: 9,
-  },
-
-  socialIcon: {
-    fontSize: 15,
-    color: COLORS.primary,
+    fontSize: dimensions.typography.extraSmall,
   },
 
   homeIndicator: {

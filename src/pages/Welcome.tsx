@@ -26,21 +26,27 @@ export default function WelcomeScreen({ onChoose }: WelcomeScreenProps) {
     <View style={styles.screen}>
       <StatusBar />
 
-      <Image
-        source={require("../../assets/images/Welcome.png")}
+      <View
         style={[
-          styles.hero,
+          styles.heroContainer,
           {
             width: heroWidth,
-            height: heroWidth * 0.78,
+            height: heroWidth * 1.5,
           },
         ]}
-        resizeMode="cover"
-      />
+      >
+        <Image
+          source={require("../../assets/images/Welcome.png")}
+          style={styles.hero}
+          resizeMode="cover"
+        />
+
+        {/* Тільки Welcome to — на картинці */}
+        <Text style={styles.welcome}>Welcome to</Text>
+      </View>
 
       <View style={styles.content}>
         <View style={styles.titleBlock}>
-          <Text style={styles.welcome}>Welcome to</Text>
           <Text style={styles.logo}>Drinkly</Text>
           <Text style={styles.subtitle}>Café & Bar</Text>
         </View>
@@ -62,11 +68,7 @@ export default function WelcomeScreen({ onChoose }: WelcomeScreenProps) {
             <Text style={styles.buttonText}>Take away</Text>
           </TouchableOpacity>
         </View>
-
-        <Text style={styles.location}>● Coffee Street 12, Łódź</Text>
       </View>
-
-      <View style={styles.indicator} />
     </View>
   );
 }
@@ -78,19 +80,28 @@ const styles = StyleSheet.create({
   },
 
   heroContainer: {
-    width: "100%",
-    maxWidth: 360,
+    position: "relative",
     alignSelf: "center",
+    marginTop: 10,
     overflow: "hidden",
     borderRadius: 7,
   },
 
   hero: {
-    marginHorizontal: 10,
-    marginTop: 10,
-    borderRadius: 7,
-    overflow: "hidden",
-    height: 260,
+    width: "100%",
+    height: "100%",
+  },
+
+  welcome: {
+    position: "absolute",
+    bottom: 22,
+    left: 0,
+    right: 0,
+    textAlign: "center",
+    color: COLORS.white,
+    fontSize: 48,
+    lineHeight: 54,
+    fontWeight: "400",
   },
 
   content: {
@@ -103,38 +114,36 @@ const styles = StyleSheet.create({
 
   titleBlock: {
     alignItems: "center",
-  },
-
-  welcome: {
-    color: COLORS.primary,
-    fontSize: 21,
-    lineHeight: 23,
+    marginBottom: 20,
   },
 
   logo: {
     color: COLORS.primary,
-    fontSize: 29,
-    fontWeight: "500",
-    marginTop: 1,
+    fontFamily: "DM Serif Display",
+    fontSize: 40,
+    fontWeight: "400",
+    lineHeight: 44,
   },
 
   subtitle: {
-    color: COLORS.primary,
-    fontSize: 10,
-    letterSpacing: 0.5,
-    marginTop: 5,
+    color: COLORS.textSecondary,
+    fontFamily: "Inter",
+    fontSize: 12,
+    fontWeight: "500",
+    lineHeight: 16,
+    marginTop: 2,
   },
 
   buttons: {
     width: "100%",
     flexDirection: "row",
-    gap: 10,
+    gap: 20,
     marginTop: "auto",
   },
 
   button: {
     flex: 1,
-    height: 43,
+    height: 64,
     borderRadius: 5,
     backgroundColor: COLORS.primary,
     alignItems: "center",
@@ -145,21 +154,5 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontSize: 13,
     fontWeight: "500",
-  },
-
-  location: {
-    color: COLORS.muted,
-    fontSize: 9,
-    marginTop: 12,
-  },
-
-  indicator: {
-    position: "absolute",
-    bottom: 7,
-    alignSelf: "center",
-    width: 105,
-    height: 4,
-    borderRadius: 999,
-    backgroundColor: "rgba(65,91,80,0.3)",
   },
 });

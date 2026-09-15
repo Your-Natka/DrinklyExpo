@@ -5,6 +5,7 @@ import Icon from "./Icon";
 import QuantityControl from "./QuantityControl";
 
 import { COLORS } from "../constants/colors";
+import { dimensions } from "../constants/dimensions";
 import { CartItem as CartItemType } from "../types";
 
 interface CartItemProps {
@@ -22,7 +23,14 @@ export default function CartItem({
 }: CartItemProps) {
   return (
     <View style={styles.card}>
-      <Image source={{ uri: item.drink.image }} style={styles.image} />
+      <Image
+        source={
+          typeof item.drink.image === "number"
+            ? item.drink.image
+            : { uri: item.drink.image }
+        }
+        style={styles.image}
+      />
 
       <View style={styles.content}>
         <View style={styles.top}>
@@ -35,7 +43,7 @@ export default function CartItem({
             onPress={onRemove}
             style={styles.deleteButton}
           >
-            <Icon name="trash" size={15} color={COLORS.muted} />
+            <Icon name="bin" size={15} color={COLORS.muted} />
           </TouchableOpacity>
         </View>
 
@@ -58,24 +66,25 @@ export default function CartItem({
 const styles = StyleSheet.create({
   card: {
     minHeight: 76,
-    padding: 6,
+    padding: dimensions.spacing.sm,
     backgroundColor: COLORS.white,
     borderWidth: 1,
     borderColor: COLORS.border,
-    borderRadius: 6,
+    borderRadius: dimensions.cards.radius,
     flexDirection: "row",
   },
 
   image: {
-    width: 60,
-    height: 64,
+    width: dimensions.images.cartItem.width,
+    height: dimensions.images.cartItem.height,
     borderRadius: 4,
-    backgroundColor: "#DDD",
-    marginRight: 8,
+    backgroundColor: COLORS.quantityBackground,
+    marginRight: dimensions.spacing.md,
   },
 
   content: {
     flex: 1,
+    minWidth: 0,
     paddingVertical: 2,
   },
 
@@ -87,8 +96,9 @@ const styles = StyleSheet.create({
 
   name: {
     flex: 1,
+    minWidth: 0,
     color: COLORS.text,
-    fontSize: 10,
+    fontSize: dimensions.typography.small,
     fontWeight: "500",
   },
 
@@ -99,7 +109,7 @@ const styles = StyleSheet.create({
 
   options: {
     color: COLORS.muted,
-    fontSize: 8,
+    fontSize: dimensions.typography.extraSmall,
     marginTop: 3,
     marginBottom: 5,
   },
@@ -112,7 +122,7 @@ const styles = StyleSheet.create({
 
   price: {
     color: COLORS.primary,
-    fontSize: 10,
+    fontSize: dimensions.typography.small,
     fontWeight: "600",
   },
 });

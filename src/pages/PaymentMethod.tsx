@@ -1,8 +1,16 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
+} from "react-native";
 
 import Button from "../components/Button";
 import { PaymentMethod } from "../types";
+import { COLORS } from "../constants/colors";
+import { dimensions } from "../constants/dimensions";
 
 interface PaymentMethodScreenProps {
   selectedMethod?: PaymentMethod;
@@ -15,6 +23,9 @@ export default function PaymentMethodScreen({
   onBack,
   onContinue,
 }: PaymentMethodScreenProps) {
+  const { width } = useWindowDimensions();
+  const horizontalPadding =
+    width <= 340 ? 14 : dimensions.layout.horizontalPadding;
   const [method, setMethod] = useState<PaymentMethod>(selectedMethod);
 
   return (
@@ -29,7 +40,7 @@ export default function PaymentMethodScreen({
         <View style={styles.spacer} />
       </View>
 
-      <View style={styles.content}>
+      <View style={[styles.content, { paddingHorizontal: horizontalPadding }]}>
         <Text style={styles.description}>
           Choose how you would like to pay for your order.
         </Text>
@@ -97,11 +108,11 @@ function PaymentOption({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8F8F6",
+    backgroundColor: COLORS.bg,
   },
 
   header: {
-    height: 76,
+    height: 50,
     paddingHorizontal: 14,
     flexDirection: "row",
     alignItems: "center",
@@ -109,36 +120,36 @@ const styles = StyleSheet.create({
   },
 
   backButton: {
-    width: 34,
-    height: 34,
+    width: dimensions.buttons.icon,
+    height: dimensions.buttons.icon,
     borderRadius: 6,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.white,
     alignItems: "center",
     justifyContent: "center",
   },
 
   backText: {
     fontSize: 28,
-    color: "#557968",
+    color: COLORS.primary,
   },
 
   title: {
-    fontSize: 20,
-    color: "#557968",
+    fontSize: dimensions.typography.sectionTitle,
+    color: COLORS.primary,
     fontWeight: "500",
   },
 
   spacer: {
-    width: 34,
+    width: dimensions.buttons.icon,
   },
 
   content: {
-    paddingHorizontal: 18,
+    paddingTop: 10,
   },
 
   description: {
-    fontSize: 11,
-    color: "#8A9891",
+    fontSize: dimensions.typography.small,
+    color: COLORS.muted,
     marginBottom: 18,
   },
 
@@ -147,23 +158,23 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     padding: 10,
     borderWidth: 1,
-    borderColor: "#B9C9C0",
-    borderRadius: 7,
-    backgroundColor: "#FFFFFF",
+    borderColor: COLORS.border,
+    borderRadius: dimensions.cards.radius,
+    backgroundColor: COLORS.white,
     flexDirection: "row",
     alignItems: "center",
   },
 
   optionActive: {
-    borderColor: "#557968",
-    backgroundColor: "#E5ECE7",
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.primaryLight,
   },
 
   iconBox: {
     width: 42,
     height: 42,
     borderRadius: 6,
-    backgroundColor: "#E5ECE7",
+    backgroundColor: COLORS.primaryLight,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -174,19 +185,20 @@ const styles = StyleSheet.create({
 
   optionText: {
     flex: 1,
+    minWidth: 0,
     marginLeft: 11,
   },
 
   optionTitle: {
-    fontSize: 12,
+    fontSize: dimensions.typography.small,
     fontWeight: "600",
-    color: "#456456",
+    color: COLORS.text,
   },
 
   optionDescription: {
     marginTop: 3,
-    fontSize: 9,
-    color: "#8A9891",
+    fontSize: dimensions.typography.extraSmall,
+    color: COLORS.muted,
   },
 
   radio: {
@@ -194,20 +206,20 @@ const styles = StyleSheet.create({
     height: 18,
     borderRadius: 9,
     borderWidth: 1,
-    borderColor: "#8A9891",
+    borderColor: COLORS.muted,
     alignItems: "center",
     justifyContent: "center",
   },
 
   radioActive: {
-    borderColor: "#557968",
+    borderColor: COLORS.primary,
   },
 
   radioInner: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: "#557968",
+    backgroundColor: COLORS.primary,
   },
 
   bottom: {

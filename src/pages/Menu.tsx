@@ -109,7 +109,10 @@ export default function MenuScreen({
             <MenuCard
               key={drink.id}
               drink={drink}
-              onPress={() => onDrinkSelect(drink)}
+              onPress={() => {
+                setSearch("");
+                onDrinkSelect(drink);
+              }}
             />
           ))}
         </View>

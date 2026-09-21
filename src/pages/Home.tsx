@@ -193,7 +193,10 @@ export default function HomeScreen({
                         drink.popular === true || favorites.includes(drink.id)
                       }
                       onToggleFavorite={() => onToggleFavorite(drink.id)}
-                      onPress={() => onDrinkSelect(drink)}
+                      onPress={() => {
+                        setSearch("");
+                        onDrinkSelect(drink);
+                      }}
                     />
                   </View>
                 ))}
@@ -229,7 +232,10 @@ export default function HomeScreen({
                   drink.popular === true || favorites.includes(drink.id)
                 }
                 onToggleFavorite={() => onToggleFavorite(drink.id)}
-                onPress={() => onDrinkSelect(drink)}
+                onPress={() => {
+                  setSearch("");
+                  onDrinkSelect(drink);
+                }}
               />
             ))}
 

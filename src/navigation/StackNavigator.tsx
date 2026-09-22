@@ -13,6 +13,7 @@ import DrawerNavigator from "./DrawerNavigator";
 import CheckoutScreen from "../pages/Checkout";
 import PaymentMethodScreen from "../pages/PaymentMethod";
 import OrderConfirmationScreen from "../pages/OrderConfirmation";
+import ApiCoffeeDetailsScreen from "../pages/ApiCoffeeDetails";
 
 import { drinks } from "../data/drinks";
 import { OrderMode, PaymentMethod } from "../types";
@@ -36,6 +37,11 @@ export default function StackNavigator() {
       <Stack.Screen
         name={SCREENS.DRINK_DETAILS}
         component={DrinkDetailsScreenAdapter}
+      />
+
+      <Stack.Screen
+        name="ApiCoffeeDetails"
+        component={ApiCoffeeDetailsScreen}
       />
 
       <Stack.Screen name={SCREENS.CHECKOUT} component={CheckoutScreenAdapter} />
@@ -148,7 +154,9 @@ function CheckoutScreenAdapter() {
       onChangeOrderMode={setOrderMode}
       onConfirm={(method) => {
         setPaymentMethod(method);
-        navigation.navigate(SCREENS.CONFIRMATION);
+        navigation.navigate(SCREENS.CONFIRMATION, {
+          paymentMethod: method,
+        });
       }}
     />
   );
@@ -172,18 +180,19 @@ function PaymentScreenAdapter() {
 }
 
 function ConfirmationScreenAdapter() {
+  const route = useRoute<RouteProp<RootStackParamList, "Confirmation">>();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const { clearCart, setPaymentMethod } = useAppContext();
 
-  const { clearCart } = useAppContext();
+  const paymentMethod = route.params.paymentMethod;
 
   const handleHome = () => {
+    setPaymentMethod(paymentMethod);
     clearCart();
 
     navigation.navigate(SCREENS.APP_DRAWER, {
       screen: "MainTabs",
-      params: {
-        screen: "Home",
-      },
+      params: { screen: "Home" },
     });
   };
 

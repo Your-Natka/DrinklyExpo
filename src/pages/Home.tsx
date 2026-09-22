@@ -1,5 +1,6 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
+  FlatList,
   ScrollView,
   StyleSheet,
   Text,
@@ -7,7 +8,9 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
+import { ApiCoffee, fetchCoffee } from "../api/coffeeApi";
 
+import ApiCoffeeCard from "../components/ApiCoffeeCard";
 import StatusBar from "../components/StatusBar";
 import Icon from "../components/Icon";
 import SearchBar from "../components/SearchBar";
@@ -26,6 +29,7 @@ interface HomeScreenProps {
   onNavigate: (screen: Screen) => void;
   onMenuOpen: () => void;
   onDrinkSelect: (drink: Drink) => void;
+  onApiCoffeeSelect: (itemId: string) => void;
   favorites: string[];
   onToggleFavorite: (drinkId: string) => void;
 }
@@ -35,6 +39,7 @@ export default function HomeScreen({
   onNavigate,
   onMenuOpen,
   onDrinkSelect,
+  onApiCoffeeSelect,
   favorites,
   onToggleFavorite,
 }: HomeScreenProps) {
@@ -53,6 +58,28 @@ export default function HomeScreen({
 
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<HomeCategory>("All");
+
+  const [apiDrinks, setApiDrinks] = useState<ApiCoffee[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadCoffee = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const data = await fetchCoffee();
+        setApiDrinks(data);
+      } catch {
+        setError("Unable to load drinks. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCoffee();
+  }, []);
 
   /*
    * POPULAR DRINKS
@@ -247,6 +274,33 @@ export default function HomeScreen({
               </View>
             )}
           </View>
+          {/* API COFFEE */}
+          <View
+            style={[
+              styles.apiSection,
+              { paddingHorizontal: horizontalPadding },
+            ]}
+          >
+            <Text style={styles.catalogTitle}>From API</Text>
+
+            {loading && <Text style={styles.apiStatus}>Loading...</Text>}
+
+            {error && <Text style={styles.apiError}>{error}</Text>}
+
+            {!loading && !error && (
+              <FlatList
+                data={apiDrinks}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({ item }) => (
+                  <ApiCoffeeCard
+                    coffee={item}
+                    onPress={() => onApiCoffeeSelect(item.id.toString())}
+                  />
+                )}
+                scrollEnabled={false}
+              />
+            )}
+          </View>
         </View>
 
         <View style={styles.bottomSpace} />
@@ -404,6 +458,22 @@ const styles = StyleSheet.create({
     color: COLORS.muted,
     fontSize: 13,
     marginTop: 6,
+  },
+
+  apiSection: {
+    marginTop: 24,
+  },
+
+  apiStatus: {
+    color: COLORS.muted,
+    fontSize: 13,
+    marginTop: 10,
+  },
+
+  apiError: {
+    color: "#B42318",
+    fontSize: 13,
+    marginTop: 10,
   },
 
   bottomSpace: {

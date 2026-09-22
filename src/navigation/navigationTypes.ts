@@ -1,4 +1,5 @@
 import { NavigatorScreenParams } from "@react-navigation/native";
+import { PaymentMethod } from "../types";
 
 export type RootStackParamList = {
   Welcome: undefined;
@@ -9,11 +10,17 @@ export type RootStackParamList = {
     drinkId: string;
   };
 
+  ApiCoffeeDetails: {
+    itemId: string;
+  };
+
   Checkout: undefined;
 
   Payment: undefined;
 
-  Confirmation: undefined;
+  Confirmation: {
+    paymentMethod: PaymentMethod;
+  };
 };
 
 export type MainTabParamList = {

@@ -11,12 +11,15 @@ Drinkly allows users to browse drinks, search and filter the catalog, view drink
 - Menu
 - Drawer Menu
 - Drink Details
+- API Coffee Details
 - Cart
 - Checkout
 - Order Confirmation
 - Café
 
 ## ✨ Features
+
+### Main application features
 
 - Welcome screen
 - Dine-in and takeaway order types
@@ -39,6 +42,177 @@ Drinkly allows users to browse drinks, search and filter the catalog, view drink
 - Passing drink IDs through navigation parameters
 - Validation of invalid or missing drink IDs
 
+### API features
+
+- Integration with a public REST API
+- Loading coffee drinks from the API
+- Fetch API for HTTP requests
+- API data stored in React state
+- Loading state
+- Error handling
+- API coffee cards
+- API coffee details screen
+- Passing API item IDs through navigation parameters
+- Validation when an API coffee item cannot be found
+- `FlatList` for rendering API data
+- Custom `ApiCoffeeCard` component
+- `keyExtractor` for API list items
+
+---
+
+# ☕ API Integration
+
+Drinkly uses a public REST API to load additional coffee drinks.
+
+### Public API
+
+The application uses the following endpoint:
+
+https://api.sampleapis.com/coffee/hot
+
+The API does not require an API key.
+
+The API provides coffee data including:
+
+id
+title
+description
+ingredients
+image
+
+The API integration is separated from the UI and stored in:
+
+src/api/coffeeApi.ts
+🔌 API Request
+
+API communication is implemented using the native JavaScript fetch API.
+
+The API URL is stored in a constant:
+
+const API_URL = "https://api.sampleapis.com/coffee/hot";
+
+The request is handled by the fetchCoffee function:
+
+export const fetchCoffee = async (): Promise<ApiCoffee[]> => {
+const response = await fetch(API_URL);
+
+if (!response.ok) {
+throw new Error(`API request failed: ${response.status}`);
+}
+
+const data: ApiCoffee[] = await response.json();
+
+return data;
+};
+
+The API logic is kept separate from the screen components.
+
+📦 API Data Type
+
+The API response is represented by the ApiCoffee TypeScript interface:
+
+export interface ApiCoffee {
+id: number;
+title: string;
+description: string;
+ingredients: string[];
+image: string;
+}
+
+This provides type safety when working with API data.
+
+🔄 API Data Flow
+
+The API data is loaded on the Home screen using useEffect.
+
+The received data is stored in React state using useState.
+
+The basic data flow is:
+
+Home Screen
+↓
+fetchCoffee()
+↓
+Public Coffee API
+↓
+API response
+↓
+apiDrinks state
+↓
+FlatList
+↓
+ApiCoffeeCard
+↓
+ApiCoffeeDetails
+⏳ Loading State
+
+While the API request is being processed, the application displays:
+
+Loading...
+
+The loading state is controlled with React state:
+
+const [loading, setLoading] = useState(true);
+
+The state is updated when the API request starts and finishes.
+
+⚠️ Error Handling
+
+The API request is wrapped in try/catch.
+
+If the request fails, the application displays:
+
+Unable to load drinks. Please try again.
+
+The error state is stored separately:
+
+const [error, setError] = useState<string | null>(null);
+
+The API error handling was tested by temporarily using an invalid API URL.
+
+📋 API List
+
+API drinks are displayed using React Native FlatList.
+
+The list uses a custom component:
+
+src/components/ApiCoffeeCard.tsx
+
+Each API item has a unique key based on its API ID:
+
+keyExtractor={(item) => item.id.toString()}
+
+The ApiCoffeeCard receives the API drink through props and handles the press event.
+
+☕ API Coffee Details
+
+When the user presses an API coffee card, the application navigates to:
+
+ApiCoffeeDetails
+
+The selected API item ID is passed through navigation parameters:
+
+navigation.navigate("ApiCoffeeDetails", {
+itemId,
+});
+
+The details screen receives the parameter using React Navigation:
+
+const { itemId } = route.params;
+
+The API data is loaded and the corresponding coffee item is found by its ID.
+
+If the item does not exist, the application displays:
+
+Coffee not found.
+
+The API details screen displays:
+
+coffee image
+coffee title
+description
+ingredients
+
 ## 🧭 Navigation
 
 The application uses **React Navigation** with three navigation types:
@@ -50,6 +224,7 @@ The root stack controls the main application flow:
 - `Welcome`
 - `AppDrawer`
 - `DrinkDetails`
+- `ApiCoffeeDetails`
 - `Checkout`
 - `Payment`
 - `Confirmation`
@@ -81,15 +256,46 @@ The Café screen is available through the Drawer navigation.
 
 ### Navigation parameters
 
-Drink details receive a `drinkId` parameter:
+The application uses navigation parameters for different types of data.
 
-```tsx
+Local drink details
+
+Drink details receive a drinkId parameter:
+
 navigation.navigate("DrinkDetails", {
-  drinkId: drink.id,
+drinkId: drink.id,
 });
-```
 
 The `DrinkDetails` screen validates the received ID and displays an error state if the drink does not exist.
+
+API coffee details
+
+API coffee details receive an itemId parameter:
+
+navigation.navigate("ApiCoffeeDetails", {
+itemId,
+});
+
+The ApiCoffeeDetails screen uses this ID to find the corresponding API item.
+
+Checkout → Confirmation
+
+The selected payment method is passed through navigation parameters:
+
+navigation.navigate(SCREENS.CONFIRMATION, {
+paymentMethod: method,
+});
+
+The Confirmation screen receives the value through:
+
+const route = useRoute<
+RouteProp<RootStackParamList, "Confirmation">
+
+> ();
+
+const paymentMethod = route.params.paymentMethod;
+
+This provides an additional example of passing data between screens using route.params.
 
 Navigation screen names are stored in:
 
@@ -118,10 +324,13 @@ SCREENS.CAFE;
 - React Navigation Bottom Tabs
 - React Navigation Drawer
 - React Hooks
+- Fetch API
+- FlatList
 - React Native StyleSheet
 - Flexbox
 - React Native Gesture Handler
 - React Native Reanimated
+- Public REST API
 
 ## 🧩 Reusable Components
 
@@ -133,6 +342,7 @@ Examples:
 - StatusBar
 - Button
 - DrinkCard
+- ApiCoffeeCard
 - MenuCard
 - CartItem
 - CategoryTabs
@@ -155,7 +365,11 @@ DrinklyExpo/
 │
 ├── src/
 │   │
+│   ├── api/
+│   │   └── coffeeApi.ts
+│   │
 │   ├── components/
+│   │   ├── ApiCoffeeCard.tsx
 │   │   ├── BottomNavigation.tsx
 │   │   ├── Button.tsx
 │   │   ├── CartItem.tsx
@@ -304,8 +518,12 @@ The application is developed with TypeScript to provide type safety for:
 - props
 - navigation
 - navigation parameters
-- drinks
+- local drinks
+- API drinks
 - cart data
+- API responses
+
+The final project passes the TypeScript check without errors.
 
 ## 📋 Main User Flow
 
@@ -347,6 +565,24 @@ The application is developed with TypeScript to provide type safety for:
 
 Users can navigate between the main sections using the custom bottom navigation and Drawer navigation.
 
+### ☕ API Flow
+
+The API functionality can be demonstrated through the Home screen.
+
+Home
+↓
+From API
+↓
+API Coffee Card
+↓
+ApiCoffeeDetails
+↓
+Back to Home
+
+The API section displays coffee drinks loaded from the public Coffee API.
+
+Selecting an API coffee opens its details screen using the corresponding itemId.
+
 ## 🔄 Order Flow
 
 The main ordering flow is:
@@ -377,21 +613,77 @@ This project was created as part of a React Native learning assignment.
 
 The project demonstrates:
 
+React Native
+
 - React Native components
 - component reusability
 - props
 - styling
 - Flexbox
 - responsive design
-- TypeScript
+
+  TypeScript
+
+- typed components
+- typed props
+- typed navigation
+- navigation parameters
+- typed local data
+- typed API responses
+
+  Navigation
+
 - Stack navigation
 - Tab navigation
 - Drawer navigation
+- nested navigators
 - navigation parameters
 - parameter validation
-- navigation architecture
 - screen transitions
 
-## 👩‍💻 Author
+  API / Data
+
+- public REST API
+- Fetch API
+- asynchronous data loading
+- useEffect
+- useState
+- FlatList
+- custom API card component
+- keyExtractor
+- loading state
+- error handling
+- API details screen
+- API navigation parameters
+
+🚀 Getting Started
+
+1. Clone the repository
+   git clone <YOUR_REPOSITORY_URL>
+2. Go to the project directory
+   cd DrinklyExpo
+3. Install dependencies
+   npm install
+4. Start the development server
+   npx expo start
+
+To run the web version:
+
+npx expo start --web
+
+### 📸 Screenshots
+
+Screenshots demonstrating the application interface and API functionality are stored in:
+
+screenshots/
+
+The API functionality screenshots include:
+
+API drinks displayed on Home
+API coffee card
+API coffee details
+API error state
+
+### 👩‍💻 Author
 
 Наталія Боднарчук

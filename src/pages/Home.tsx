@@ -9,6 +9,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { ApiCoffee, fetchCoffee } from "../api/coffeeApi";
+import { useTheme } from "../context/ThemeContext";
 
 import ApiCoffeeCard from "../components/ApiCoffeeCard";
 import StatusBar from "../components/StatusBar";
@@ -18,6 +19,7 @@ import CategoryTabs from "../components/CategoryTabs";
 import DrinkCard from "../components/DrinkCard";
 import BottomNavigation from "../components/BottomNavigation";
 
+import { FONT_SIZES } from "../constants/typography";
 import { COLORS } from "../constants/colors";
 import { dimensions } from "../constants/dimensions";
 import { categories, drinks } from "../data/drinks";
@@ -37,13 +39,16 @@ interface HomeScreenProps {
 export default function HomeScreen({
   cartCount,
   onNavigate,
-  onMenuOpen,
   onDrinkSelect,
+  onMenuOpen,
   onApiCoffeeSelect,
   favorites,
   onToggleFavorite,
 }: HomeScreenProps) {
   const { width } = useWindowDimensions();
+
+  const { theme, toggleTheme } = useTheme();
+  const isDark = theme === "dark";
 
   const horizontalPadding =
     width <= 340 ? 14 : dimensions.layout.horizontalPadding;

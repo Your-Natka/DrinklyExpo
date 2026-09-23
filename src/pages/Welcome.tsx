@@ -1,4 +1,5 @@
 import React from "react";
+import { useTheme } from "../context/ThemeContext";
 import {
   Image,
   StyleSheet,
@@ -9,6 +10,7 @@ import {
 } from "react-native";
 
 import StatusBar from "../components/StatusBar";
+import { FONT_SIZES } from "../constants/typography";
 import { COLORS } from "../constants/colors";
 import { OrderMode } from "../types";
 
@@ -19,12 +21,36 @@ interface WelcomeScreenProps {
 export default function WelcomeScreen({ onChoose }: WelcomeScreenProps) {
   const { width } = useWindowDimensions();
 
+  const { theme, toggleTheme } = useTheme();
+  const isDark = theme === "dark";
+
   const horizontalMargin = 10;
   const heroWidth = width - horizontalMargin * 2;
 
   return (
     <View style={styles.screen}>
       <StatusBar />
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={toggleTheme}
+        style={[
+          styles.themeButton,
+          {
+            backgroundColor: isDark
+              ? COLORS.darkButton
+              : COLORS.optionBackground,
+          },
+        ]}
+      >
+        <Text
+          style={{
+            color: isDark ? COLORS.darkText : COLORS.primary,
+            fontSize: FONT_SIZES.sectionTitle,
+          }}
+        >
+          {isDark ? "☀" : "☾"}
+        </Text>
+      </TouchableOpacity>
 
       <View
         style={[
@@ -90,6 +116,18 @@ const styles = StyleSheet.create({
   hero: {
     width: "100%",
     height: "100%",
+  },
+
+  themeButton: {
+    position: "absolute",
+    top: 42,
+    right: 20,
+    zIndex: 20,
+    width: 40,
+    height: 40,
+    borderRadius: 5,
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   welcome: {

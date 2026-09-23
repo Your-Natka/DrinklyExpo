@@ -9,6 +9,7 @@ import {
 } from "@react-navigation/bottom-tabs";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useDispatch, useSelector } from "react-redux";
 
 import HomeScreen from "../pages/Home";
 import MenuScreen from "../pages/Menu";
@@ -23,6 +24,8 @@ import {
 import { Drink, Screen } from "../types";
 import { useAppContext } from "../context/AppContext";
 import { SCREENS } from "../constants/screens";
+import { RootState, AppDispatch } from "../store/store";
+import { removeItem, updateQuantity } from "../store/cartSlice";
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -54,7 +57,11 @@ export default function TabNavigator() {
 function HomeScreenAdapter() {
   const navigation = useNavigation<TabNavigationProp>();
 
-  const { cartCount, favorites, toggleFavorite, selectDrink } = useAppContext();
+  const { favorites, toggleFavorite, selectDrink } = useAppContext();
+
+  const cart = useSelector((state: RootState) => state.cart.items);
+
+  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const handleNavigate = (screen: Screen) => {
     switch (screen) {
@@ -119,7 +126,11 @@ function HomeScreenAdapter() {
 function MenuScreenAdapter() {
   const navigation = useNavigation<TabNavigationProp>();
 
-  const { cartCount, selectDrink } = useAppContext();
+  const { selectDrink } = useAppContext();
+
+  const cart = useSelector((state: RootState) => state.cart.items);
+
+  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const handleNavigate = (screen: Screen) => {
     switch (screen) {
@@ -167,7 +178,11 @@ function MenuScreenAdapter() {
 function CartScreenAdapter() {
   const navigation = useNavigation<TabNavigationProp>();
 
-  const { cart, orderMode, updateQuantity, removeFromCart } = useAppContext();
+  const { orderMode } = useAppContext();
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  const cart = useSelector((state: RootState) => state.cart.items);
 
   return (
     <CartScreen
@@ -179,8 +194,17 @@ function CartScreenAdapter() {
       onCheckout={() => {
         navigation.getParent()?.getParent()?.navigate(SCREENS.CHECKOUT);
       }}
-      onUpdateQuantity={updateQuantity}
-      onRemove={removeFromCart}
+      onUpdateQuantity={(index, quantity) => {
+        dispatch(
+          updateQuantity({
+            index,
+            quantity,
+          }),
+        );
+      }}
+      onRemove={(index) => {
+        dispatch(removeItem(index));
+      }}
     />
   );
 }

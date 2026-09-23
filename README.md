@@ -314,6 +314,137 @@ SCREENS.CHECKOUT;
 SCREENS.CAFE;
 ```
 
+## 🌐 Global State Management
+
+Assignment 6 demonstrates two approaches to global state management:
+
+- React Context API
+- Redux Toolkit
+
+The application uses both approaches for different types of global state.
+
+### Context API
+
+React Context API is used for application-wide theme and shared application state.
+
+The Context implementation is located in:
+
+````text
+src/context/
+├── AppContext.tsx
+└── ThemeContext.tsx
+
+ThemeContext
+
+ThemeContext stores the current application theme:
+
+light
+dark
+
+The context provides:
+
+theme
+toggleTheme()
+
+The ThemeProvider is connected at the root of the application in App.tsx.
+
+Components use the context through the useTheme() hook.
+
+The theme is demonstrated in several components, including:
+
+Welcome
+Header
+BottomNavigation
+
+The theme can be changed by pressing the theme button.
+
+The Context API demonstrates how shared state can be accessed by different components without passing it through props.
+
+AppContext
+
+AppContext stores shared application state related to the ordering flow.
+
+It provides:
+
+order mode
+payment method
+selected drink
+favorites
+
+The context also provides actions for changing and resetting this state.
+
+The custom useAppContext() hook is used by components that need access to this shared state.
+
+Redux Toolkit
+
+Redux Toolkit is used to manage the shopping cart.
+
+Redux dependencies:
+
+@reduxjs/toolkit
+react-redux
+
+Redux files are located in:
+
+src/store/
+├── cartSlice.ts
+└── store.ts
+Cart Slice
+
+The cart state contains:
+
+items: CartItem[]
+
+The cart slice provides the following reducers:
+
+addItem
+removeItem
+updateQuantity
+clearCart
+Redux Store
+
+The Redux store is configured using configureStore().
+
+The store contains the cart reducer:
+
+cart
+└── items
+
+The application is wrapped with the Redux Provider in App.tsx.
+
+Redux in Components
+
+The application uses:
+
+useSelector() to read cart data
+useDispatch() to update cart data
+
+Redux is integrated into:
+
+Drink Details
+Cart
+Checkout
+Order Confirmation
+Bottom Navigation
+
+For example, adding a drink to the cart dispatches the addItem action.
+
+Changing the quantity dispatches updateQuantity.
+
+Removing an item dispatches removeItem.
+
+After successful order confirmation, clearCart removes the completed order from the Redux store.
+
+Why two approaches are used
+
+Context API and Redux Toolkit are demonstrated as two different approaches to global state management.
+
+Context API is used for shared application settings and state such as the theme.
+
+Redux Toolkit is used for the shopping cart because the cart contains multiple related operations such as adding items, removing items and updating quantities.
+
+This separation keeps the application state organized and demonstrates both approaches required by the assignment.
+
 ## 🛠️ Technologies
 
 - React Native
@@ -393,6 +524,7 @@ DrinklyExpo/
 │   │
 │   ├── context/
 │   │   └── AppContext.tsx
+│   │   └── ThemeContext.tsx
 │   │
 │   ├── data/
 │   │   └── drinks.ts
@@ -403,6 +535,9 @@ DrinklyExpo/
 │   │   ├── StackNavigator.tsx
 │   │   ├── TabNavigator.tsx
 │   │   └── navigationTypes.ts
+│   ├── store/
+│   │   ├── cartSlice.ts
+│   │   └── store.ts
 │   │
 │   ├── pages/
 │   │   ├── Welcome.tsx
@@ -428,7 +563,7 @@ DrinklyExpo/
 ├── package.json
 ├── tsconfig.json
 └── README.md
-```
+````
 
 ## 🎨 Styling
 
@@ -531,6 +666,10 @@ The final project passes the TypeScript check without errors.
 
 ![Welcome](./screenshots/WelcomePage.png)
 
+#### Context API — Theme
+
+![Theme Context](./screenshots/ThemeContext.png)
+
 ### Home
 
 ![Home](./screenshots/HomePage.png)
@@ -554,6 +693,10 @@ The final project passes the TypeScript check without errors.
 ### Cart
 
 ![Cart](./screenshots/CartNotOrder.png)
+
+#### Redux Toolkit — Cart
+
+![Redux Cart](./screenshots/ReduxCart.png)
 
 ### Checkout
 

@@ -11,6 +11,7 @@ import { dimensions } from "../constants/dimensions";
 import Icon, { IconName } from "./Icon";
 import { COLORS } from "../constants/colors";
 import { Screen } from "../types";
+import { useTheme } from "../context/ThemeContext";
 
 interface BottomNavigationProps {
   activeScreen: Screen;
@@ -53,10 +54,28 @@ export default function BottomNavigation({
   onNavigate,
 }: BottomNavigationProps) {
   const { width } = useWindowDimensions();
+  const { theme } = useTheme();
+
+  const isDark = theme === "dark";
 
   const horizontalPadding = width <= 340 ? 6 : 12;
+
+  const navigationBackground = isDark
+    ? COLORS.darkBottomNavigation
+    : COLORS.white;
+  const inactiveColor = isDark ? COLORS.darkInactive : "#B7C8BC";
+  const borderColor = isDark ? COLORS.darkBorder : "#EEF0ED";
+
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: navigationBackground,
+          borderTopColor: borderColor,
+        },
+      ]}
+    >
       <View
         style={[styles.navigation, { paddingHorizontal: horizontalPadding }]}
       >
@@ -74,7 +93,7 @@ export default function BottomNavigation({
                 <Icon
                   name={item.icon}
                   size={22}
-                  color={active ? COLORS.primary : "#B7C8BC"}
+                  color={active ? COLORS.primary : inactiveColor}
                 />
 
                 {item.screen === "cart" && cartCount > 0 && (
@@ -84,7 +103,13 @@ export default function BottomNavigation({
                 )}
               </View>
 
-              <Text style={[styles.label, active && styles.activeLabel]}>
+              <Text
+                style={[
+                  styles.label,
+                  { color: inactiveColor },
+                  active && styles.activeLabel,
+                ]}
+              >
                 {item.label}
               </Text>
             </TouchableOpacity>
@@ -102,9 +127,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     height: 76,
-    backgroundColor: COLORS.white,
     borderTopWidth: 1,
-    borderTopColor: "#EEF0ED",
   },
 
   navigation: {
@@ -133,7 +156,6 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 10,
     fontWeight: "500",
-    color: "#B7C8BC",
   },
 
   activeLabel: {

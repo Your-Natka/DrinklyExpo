@@ -4,31 +4,49 @@ import {
   createDrawerNavigator,
 } from "@react-navigation/drawer";
 import {
-  DrawerActions,
-  NavigationProp,
-  useNavigation,
-} from "@react-navigation/native";
-import {
   Linking,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  useWindowDimensions,
 } from "react-native";
 
-import CafeScreen from "../pages/Cafe";
 import TabNavigator from "./TabNavigator";
-
+import CafeScreen from "../pages/Cafe";
 import Icon, { IconName } from "../components/Icon";
 import { COLORS } from "../constants/colors";
-
-import { DrawerParamList, MainTabParamList } from "./navigationTypes";
-
-import { useAppContext } from "../context/AppContext";
-import { SCREENS } from "../constants/screens";
+import { DrawerParamList } from "./navigationTypes";
 
 const Drawer = createDrawerNavigator<DrawerParamList>();
+
+interface MenuItem {
+  label: string;
+  icon: IconName;
+  screen: "MainTabs" | "Cafe";
+}
+
+const menuItems: MenuItem[] = [
+  {
+    label: "Home",
+    icon: "spriteHome",
+    screen: "MainTabs",
+  },
+  {
+    label: "Menu",
+    icon: "spriteMenu",
+    screen: "MainTabs",
+  },
+  {
+    label: "My Order",
+    icon: "spriteCart",
+    screen: "MainTabs",
+  },
+  {
+    label: "Café",
+    icon: "spriteCafe",
+    screen: "Cafe",
+  },
+];
 
 export default function DrawerNavigator() {
   return (
@@ -39,92 +57,53 @@ export default function DrawerNavigator() {
         drawerType: "front",
         overlayColor: "rgba(0,0,0,0.28)",
         drawerStyle: {
-          width: 310,
+          width: "74%",
+          maxWidth: 310,
           backgroundColor: COLORS.primary,
         },
       }}
     >
-      <Drawer.Screen
-        name="MainTabs"
-        component={TabNavigator}
-        options={{
-          title: "Home",
-        }}
-      />
-
-      <Drawer.Screen
-        name={SCREENS.CAFE}
-        component={CafeScreenAdapter}
-        options={{
-          title: "Café",
-        }}
-      />
+      <Drawer.Screen name="MainTabs" component={TabNavigator} />
+      <Drawer.Screen name="Cafe" component={CafeScreen} />
     </Drawer.Navigator>
   );
 }
 
-/*
- * Custom Drawer
- *
- * React Navigation still controls the drawer itself,
- * but this component keeps the original Drinkly menu design.
- */
 function CustomDrawerContent({ navigation }: DrawerContentComponentProps) {
-  const { width } = useWindowDimensions();
-
-  const { resetOrder } = useAppContext();
-
-  const drawerWidth = Math.min(width * 0.74, 310);
-
-  const navigateToTab = (screen: keyof MainTabParamList) => {
+  const handleMainTabNavigation = (screen: "Home" | "Menu" | "Cart") => {
     navigation.navigate("MainTabs", {
       screen,
     });
 
-    navigation.dispatch(DrawerActions.closeDrawer());
+    navigation.closeDrawer();
   };
 
-  const handleCafe = () => {
-    navigation.navigate(SCREENS.CAFE);
-
-    navigation.dispatch(DrawerActions.closeDrawer());
-  };
-
-  const handleStartOver = () => {
-    resetOrder();
-
-    navigation.dispatch(DrawerActions.closeDrawer());
-
-    const parent = navigation.getParent();
-
-    if (parent) {
-      parent.navigate(SCREENS.WELCOME);
+  const handleNavigation = (item: MenuItem) => {
+    if (item.screen === "Cafe") {
+      navigation.navigate("Cafe");
+      navigation.closeDrawer();
+      return;
     }
-  };
 
-  const handleSocialPress = async (url: string) => {
-    try {
-      const supported = await Linking.canOpenURL(url);
+    if (item.label === "Home") {
+      handleMainTabNavigation("Home");
+      return;
+    }
 
-      if (supported) {
-        await Linking.openURL(url);
-      }
-    } catch {
-      // Ignore link errors.
+    if (item.label === "Menu") {
+      handleMainTabNavigation("Menu");
+      return;
+    }
+
+    if (item.label === "My Order") {
+      handleMainTabNavigation("Cart");
     }
   };
 
   return (
-    <View style={styles.drawerContainer}>
-      <View
-        style={[
-          styles.drawer,
-          {
-            width: drawerWidth,
-          },
-        ]}
-      >
-        {/* LOGO */}
+    <View style={styles.drawer}>
+      <View style={styles.content}>
+        {/* Logo */}
         <View style={styles.logoRow}>
           <View style={styles.logoBlock}>
             <Text style={styles.logo}>Drinkly</Text>
@@ -134,114 +113,85 @@ function CustomDrawerContent({ navigation }: DrawerContentComponentProps) {
 
           <TouchableOpacity
             activeOpacity={0.7}
-            onPress={() => navigation.dispatch(DrawerActions.closeDrawer())}
+            onPress={() => navigation.closeDrawer()}
             style={styles.closeButton}
           >
             <Icon name="close" size={17} color={COLORS.white} />
           </TouchableOpacity>
         </View>
 
-        {/* LOCATION */}
+        {/* Location */}
         <View style={styles.location}>
           <Text style={styles.locationLabel}>LOCATION</Text>
 
           <Text style={styles.locationValue}>Coffee Street 12, Łódź</Text>
         </View>
 
-        {/* NAVIGATION */}
+        {/* Navigation */}
         <View style={styles.navigation}>
-          <DrawerMenuItem
-            label="Home"
-            icon="spriteHome"
-            onPress={() => navigateToTab("Home")}
-          />
+          {menuItems.map((item) => (
+            <TouchableOpacity
+              key={item.label}
+              activeOpacity={0.75}
+              onPress={() => handleNavigation(item)}
+              style={styles.menuItem}
+            >
+              <View style={styles.menuIconBox}>
+                <Icon name={item.icon} size={19} color={COLORS.white} />
+              </View>
 
-          <DrawerMenuItem
-            label="Menu"
-            icon="spriteMenu"
-            onPress={() => navigateToTab("Menu")}
-          />
+              <Text style={styles.menuText}>{item.label}</Text>
+            </TouchableOpacity>
+          ))}
 
-          <DrawerMenuItem
-            label="My Order"
-            icon="spriteCart"
-            onPress={() => navigateToTab("Cart")}
-          />
+          <View style={styles.divider} />
 
-          <DrawerMenuItem label="Café" icon="spriteCafe" onPress={handleCafe} />
-
-          {/* CHANGE ORDER TYPE */}
           <TouchableOpacity
             activeOpacity={0.75}
-            onPress={handleStartOver}
+            onPress={() => {
+              navigation.closeDrawer();
+              navigation.getParent()?.navigate("Welcome");
+            }}
             style={styles.changeButton}
           >
-            <View style={styles.changeIconBox}>
-              <Icon name="revers" size={17} color={COLORS.primary} />
-            </View>
+            <Icon name="revers" size={17} color={COLORS.primary} />
 
             <Text style={styles.changeText}>Change order type</Text>
           </TouchableOpacity>
 
-          <View style={styles.divider} />
+          <View style={styles.socialSection}>
+            <SocialItem
+              label="Instagram"
+              icon="instagram"
+              onPress={() => {
+                Linking.openURL("https://www.instagram.com/");
+              }}
+            />
 
-          {/* SOCIAL LINKS */}
-          <SocialItem
-            label="Instagram"
-            icon="instagram"
-            onPress={() => handleSocialPress("https://www.instagram.com/")}
-          />
+            <SocialItem
+              label="Facebook"
+              icon="facebook"
+              onPress={() => {
+                Linking.openURL("https://www.facebook.com/");
+              }}
+            />
 
-          <SocialItem
-            label="Facebook"
-            icon="facebook"
-            onPress={() => handleSocialPress("https://www.facebook.com/")}
-          />
-
-          <SocialItem
-            label="TikTok"
-            icon="tiktok"
-            onPress={() => handleSocialPress("https://www.tiktok.com/")}
-          />
+            <SocialItem
+              label="TikTok"
+              icon="tiktok"
+              onPress={() => {
+                Linking.openURL("https://www.tiktok.com/");
+              }}
+            />
+          </View>
         </View>
 
-        {/* FOOTER */}
         <Text style={styles.footer}>Drinkly · Warszawa · 2026</Text>
       </View>
     </View>
   );
 }
 
-/*
- * Drawer menu item
- */
-function DrawerMenuItem({
-  label,
-  icon,
-  onPress,
-}: {
-  label: string;
-  icon: IconName;
-  onPress: () => void;
-}) {
-  return (
-    <TouchableOpacity
-      activeOpacity={0.75}
-      onPress={onPress}
-      style={styles.menuItem}
-    >
-      <View style={styles.menuIconBox}>
-        <Icon name={icon} size={19} color={COLORS.white} />
-      </View>
-
-      <Text style={styles.menuText}>{label}</Text>
-    </TouchableOpacity>
-  );
-}
-
-/*
- * Social link item
- */
 function SocialItem({
   label,
   icon,
@@ -266,28 +216,24 @@ function SocialItem({
   );
 }
 
-/*
- * Café adapter
- *
- * Allows the Café screen to close the drawer
- * and return to the main tabs.
- */
-function CafeScreenAdapter() {
-  const navigation = useNavigation<NavigationProp<DrawerParamList>>();
-
-  return <CafeScreen onBack={() => navigation.navigate("MainTabs")} />;
-}
-
 const styles = StyleSheet.create({
-  drawerContainer: {
-    flex: 1,
-  },
-
   drawer: {
-    height: "100%",
+    flex: 1,
     backgroundColor: COLORS.primary,
     paddingTop: 48,
     paddingBottom: 22,
+  },
+
+  /*
+   * The inner content is slightly narrower than the drawer
+   * and centered. This keeps the menu visually balanced
+   * on both narrow and wide screens.
+   */
+  content: {
+    width: "100%",
+    maxWidth: 290,
+    alignSelf: "center",
+    flex: 1,
   },
 
   logoRow: {
@@ -328,6 +274,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginLeft: 8,
+    marginTop: -5,
   },
 
   location: {
@@ -387,12 +334,6 @@ const styles = StyleSheet.create({
     marginTop: 9,
   },
 
-  changeIconBox: {
-    width: 24,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
   changeText: {
     marginLeft: 9,
     color: COLORS.white,
@@ -403,6 +344,10 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: "rgba(255,255,255,0.15)",
     marginVertical: 13,
+  },
+
+  socialSection: {
+    marginTop: 4,
   },
 
   socialItem: {

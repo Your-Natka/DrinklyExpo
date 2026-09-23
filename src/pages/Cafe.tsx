@@ -8,6 +8,7 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 import CafeLink from "../components/CafeLink";
 import Icon from "../components/Icon";
@@ -20,7 +21,8 @@ interface CafeScreenProps {
   onBack: () => void;
 }
 
-export default function CafeScreen({ onBack }: CafeScreenProps) {
+export default function CafeScreen() {
+  const navigation = useNavigation();
   const { width } = useWindowDimensions();
   const horizontalPadding =
     width <= 340 ? 14 : dimensions.layout.horizontalPadding;
@@ -31,7 +33,7 @@ export default function CafeScreen({ onBack }: CafeScreenProps) {
       <View style={styles.header}>
         <TouchableOpacity
           activeOpacity={0.8}
-          onPress={onBack}
+          onPress={() => navigation.goBack()}
           style={styles.backButton}
         >
           <Icon name="back" size={20} color={COLORS.primary} />
@@ -130,7 +132,7 @@ const styles = StyleSheet.create({
     width: dimensions.buttons.icon,
     height: dimensions.buttons.icon,
     borderRadius: 5,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.warm,
     alignItems: "center",
     justifyContent: "center",
   },

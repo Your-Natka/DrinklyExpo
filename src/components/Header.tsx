@@ -12,6 +12,7 @@ import {
 import Icon from "./Icon";
 import { COLORS } from "../constants/colors";
 import { dimensions } from "../constants/dimensions";
+import { useTheme } from "../context/ThemeContext";
 
 interface HeaderProps {
   title: string;
@@ -33,36 +34,73 @@ export default function Header({
   isLogo = false,
 }: HeaderProps) {
   const { width } = useWindowDimensions();
+  const { theme, toggleTheme } = useTheme();
 
   const horizontalPadding =
     width <= 340 ? 14 : dimensions.layout.horizontalPadding;
 
+  const isDark = theme === "dark";
+
+  const textColor = isDark ? COLORS.darkText : COLORS.primary;
+
+  const buttonBackground = COLORS.optionBackground;
+
   return (
-    <View style={[styles.container, { paddingHorizontal: horizontalPadding }]}>
+    <View
+      style={[
+        styles.container,
+        {
+          paddingHorizontal: horizontalPadding,
+          backgroundColor: isDark ? COLORS.darkBg : "transparent",
+        },
+      ]}
+    >
       <View style={styles.left}>
         {onBack && (
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={onBack}
-            style={[styles.sideButton, backButtonStyle]}
+            style={[
+              styles.sideButton,
+              { backgroundColor: buttonBackground },
+              backButtonStyle,
+            ]}
           >
-            <Icon name="back" size={20} color={COLORS.primary} />
+            <Icon name="back" size={20} color={textColor} />
           </TouchableOpacity>
         )}
       </View>
 
-      <Text style={isLogo ? styles.logo : styles.title} numberOfLines={1}>
+      <Text
+        style={[isLogo ? styles.logo : styles.title, { color: textColor }]}
+        numberOfLines={1}
+      >
         {title}
       </Text>
 
       <View style={styles.right}>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={toggleTheme}
+          style={[styles.sideButton, { backgroundColor: buttonBackground }]}
+        >
+          <Text
+            style={{
+              color: COLORS.primary,
+              fontSize: 16,
+            }}
+          >
+            {isDark ? "☀" : "☾"}
+          </Text>
+        </TouchableOpacity>
+
         {showCart && (
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={onCart}
-            style={styles.sideButton}
+            style={[styles.sideButton, { backgroundColor: buttonBackground }]}
           >
-            <Icon name="cart" size={20} color={COLORS.primary} />
+            <Icon name="cart" size={20} color={textColor} />
 
             {cartCount > 0 && (
               <View style={styles.badge}>
@@ -90,14 +128,15 @@ const styles = StyleSheet.create({
 
   right: {
     width: dimensions.buttons.icon,
-    alignItems: "flex-end",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
 
   sideButton: {
     width: dimensions.buttons.icon,
     height: dimensions.buttons.icon,
     borderRadius: 5,
-    backgroundColor: "#F7F8F6",
     alignItems: "center",
     justifyContent: "center",
     position: "relative",
@@ -107,7 +146,6 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
     textAlign: "center",
-    color: COLORS.primary,
     fontFamily: "DM Serif Display",
     fontSize: 40,
     fontWeight: "400",
@@ -118,7 +156,6 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
     textAlign: "center",
-    color: COLORS.primary,
     fontSize: dimensions.typography.sectionTitle,
     fontWeight: "500",
     lineHeight: 24,

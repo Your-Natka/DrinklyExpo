@@ -6,6 +6,7 @@ import {
   useRoute,
 } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { useDispatch, useSelector } from "react-redux";
 
 import WelcomeScreen from "../pages/Welcome";
 import DrinkDetailsScreen from "../pages/DrinkDetails";
@@ -16,10 +17,13 @@ import OrderConfirmationScreen from "../pages/OrderConfirmation";
 import ApiCoffeeDetailsScreen from "../pages/ApiCoffeeDetails";
 
 import { drinks } from "../data/drinks";
-import { OrderMode, PaymentMethod } from "../types";
+import { OrderMode, PaymentMethod, CartItem } from "../types";
 import { RootStackParamList } from "./navigationTypes";
 import { useAppContext } from "../context/AppContext";
 import { SCREENS } from "../constants/screens";
+import { RootState, AppDispatch } from "../store/store";
+import { addItem, clearCart } from "../store/cartSlice";
+import { buildOptionLabel } from "../utils/options";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -80,7 +84,7 @@ function DrinkDetailsScreenAdapter() {
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  const { addToCart } = useAppContext();
+  const dispatch = useDispatch<AppDispatch>();
 
   const drinkId = route.params?.drinkId;
 
@@ -122,7 +126,15 @@ function DrinkDetailsScreenAdapter() {
       >
     >[2],
   ) => {
-    addToCart(selectedDrink, options, quantity);
+    const item: CartItem = {
+      id: `${selectedDrink.id}-${Date.now()}`,
+      drink: selectedDrink,
+      quantity,
+      options,
+      optionLabel: buildOptionLabel(selectedDrink, options),
+    };
+
+    dispatch(addItem(item));
 
     navigation.navigate(SCREENS.APP_DRAWER, {
       screen: "MainTabs",
@@ -144,7 +156,9 @@ function DrinkDetailsScreenAdapter() {
 function CheckoutScreenAdapter() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  const { cart, orderMode, setOrderMode, setPaymentMethod } = useAppContext();
+  const { orderMode, setOrderMode, setPaymentMethod } = useAppContext();
+
+  const cart = useSelector((state: RootState) => state.cart.items);
 
   return (
     <CheckoutScreen
@@ -154,6 +168,7 @@ function CheckoutScreenAdapter() {
       onChangeOrderMode={setOrderMode}
       onConfirm={(method) => {
         setPaymentMethod(method);
+
         navigation.navigate(SCREENS.CONFIRMATION, {
           paymentMethod: method,
         });
@@ -182,13 +197,17 @@ function PaymentScreenAdapter() {
 function ConfirmationScreenAdapter() {
   const route = useRoute<RouteProp<RootStackParamList, "Confirmation">>();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { clearCart, setPaymentMethod } = useAppContext();
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  const { setPaymentMethod } = useAppContext();
 
   const paymentMethod = route.params.paymentMethod;
 
   const handleHome = () => {
     setPaymentMethod(paymentMethod);
-    clearCart();
+
+    dispatch(clearCart());
 
     navigation.navigate(SCREENS.APP_DRAWER, {
       screen: "MainTabs",

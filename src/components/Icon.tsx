@@ -261,19 +261,16 @@ export default function Icon({
     /* Back / Arrow left */
     case "back":
       return (
-        <Text
-          style={{
-            color,
-            fontSize: size * 1.35,
-            lineHeight: size * 1.2,
-            fontWeight: "300",
-            position: "absolute",
-            includeFontPadding: false,
-            paddingBottom: 4,
-          }}
-        >
-          ‹
-        </Text>
+        <Svg width={size} height={size} viewBox="0 0 24 24" style={style}>
+          <Path
+            d="M15 5L8 12L15 19"
+            fill="none"
+            stroke={color}
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </Svg>
       );
 
     case "heart":

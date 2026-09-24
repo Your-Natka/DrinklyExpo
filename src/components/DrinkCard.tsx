@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Image,
   StyleSheet,
@@ -7,6 +7,11 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
 
 import Icon from "./Icon";
 
@@ -16,13 +21,13 @@ import { Drink } from "../types";
 
 interface DrinkCardProps {
   drink: Drink;
-  onPress: () => void;
+  onPress: (drink: Drink) => void;
   variant?: "horizontal" | "popular";
   isFavorite?: boolean;
-  onToggleFavorite?: () => void;
+  onToggleFavorite?: (drinkId: string) => void;
 }
 
-export default function DrinkCard({
+function DrinkCard({
   drink,
   onPress,
   variant = "horizontal",
@@ -30,6 +35,19 @@ export default function DrinkCard({
   onToggleFavorite,
 }: DrinkCardProps) {
   const { width } = useWindowDimensions();
+
+  const favoriteScale = useSharedValue(1);
+
+  useEffect(() => {
+    favoriteScale.value = withSpring(isFavorite ? 1.25 : 1, {
+      damping: 10,
+      stiffness: 300,
+    });
+  }, [isFavorite, favoriteScale]);
+
+  const animatedFavoriteStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: favoriteScale.value }],
+  }));
 
   const horizontalPadding =
     width <= 340 ? 14 : dimensions.layout.horizontalPadding;
@@ -48,7 +66,7 @@ export default function DrinkCard({
   if (variant === "popular") {
     return (
       <View style={[styles.popularCard, { width: popularWidth }]}>
-        <TouchableOpacity activeOpacity={0.85} onPress={onPress}>
+        <TouchableOpacity activeOpacity={0.85} onPress={() => onPress(drink)}>
           <Image source={imageSource} style={styles.popularImage} />
 
           <View style={styles.popularInfo}>
@@ -69,10 +87,14 @@ export default function DrinkCard({
         {onToggleFavorite && (
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={onToggleFavorite}
+            onPress={() => {
+              onToggleFavorite(drink.id);
+            }}
             style={styles.favoriteButton}
           >
-            <Text style={styles.favoriteText}>{isFavorite ? "♥" : "♡"}</Text>
+            <Animated.Text style={[styles.favoriteText, animatedFavoriteStyle]}>
+              {isFavorite ? "♥" : "♡"}
+            </Animated.Text>
           </TouchableOpacity>
         )}
       </View>
@@ -82,7 +104,7 @@ export default function DrinkCard({
   return (
     <TouchableOpacity
       activeOpacity={0.85}
-      onPress={onPress}
+      onPress={() => onPress(drink)}
       style={styles.card}
     >
       <Image source={imageSource} style={styles.image} />
@@ -101,6 +123,8 @@ export default function DrinkCard({
     </TouchableOpacity>
   );
 }
+
+export default React.memo(DrinkCard);
 
 const styles = StyleSheet.create({
   /*

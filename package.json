@@ -37,6 +37,7 @@
   "devDependencies": {
     "@types/react": "~19.2.2",
     "eslint": "^10.10.0",
+    "expo-atlas": "^0.4.0",
     "typescript": "~6.0.3"
   },
   "scripts": {

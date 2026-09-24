@@ -660,6 +660,114 @@ The application is developed with TypeScript to provide type safety for:
 
 The final project passes the TypeScript check without errors.
 
+## Assignment 7 — Performance Optimization
+
+This assignment focuses on performance optimization of the DrinklyExpo React Native application.
+
+### 1. Animation optimization
+
+For the `DrinkCard` component, a visible animation was added to the favorite button.
+
+The animation uses `react-native-reanimated` with:
+
+- `useSharedValue`
+- `useAnimatedStyle`
+- `withSpring`
+
+When a drink is added to favorites, the heart icon smoothly scales up. When it is removed from favorites, it returns to its original size.
+
+This provides visual feedback without using React state for the animation itself.
+
+### 2. Rendering optimization
+
+The `DrinkCard` component was wrapped with `React.memo` to avoid unnecessary re-renders when its props have not changed.
+
+In `Home.tsx`, callback functions passed to child components were stabilized with `useCallback`:
+
+- `handleDrinkPress`
+- `handleFavoriteToggle`
+- `handleCategoryChange`
+- `handleCartPress`
+- `handleApiCoffeePress`
+
+Existing expensive list calculations were optimized with `useMemo`:
+
+- popular drinks
+- search results
+- displayed drinks
+
+This helps prevent unnecessary recalculation when unrelated state changes.
+
+Temporary `console.count()` logging was used during development to verify component rendering behavior. The logging was removed from the final version.
+
+### 3. Bundle analysis
+
+The production application was exported with source maps and analyzed using Expo Atlas.
+
+The analysis was performed for the web bundle.
+
+The resulting bundle size was approximately **1.8 MB**.
+
+The largest parts of the web bundle included:
+
+- `react-native-reanimated`
+- `react-native-web`
+- `react-dom`
+- React Native runtime modules
+
+`react-native-reanimated` was not removed because it is actively used by the application for the Assignment 7 animation.
+
+`react-native-web` and `react-dom` are required for the web version of the Expo application.
+
+Redux dependencies were also retained because they are part of the application's existing state-management implementation.
+
+### 4. Asset analysis
+
+The Expo Atlas analysis also showed a large `Welcome.png` asset of approximately **1.4 MB**.
+
+The source image was checked and confirmed to be:
+
+- 732 × 1100 px
+- PNG
+- RGBA with transparency
+
+The image was not blindly converted or reduced because transparency is used by the design and the current image dimensions closely match the displayed aspect ratio.
+
+### 5. Verification
+
+TypeScript compilation was checked with:
+
+npx tsc --noEmit
+
+Result:
+
+0 errors
+
+The application was also tested in Expo Web, including the favorite-button animation.
+
+### 6. Tools used
+
+React Native
+Expo
+React.memo
+useMemo
+useCallback
+React Native Reanimated
+Expo Atlas
+TypeScript
+
+### 7. Result
+
+The application now includes:
+
+a visible Reanimated interaction
+optimized rendering of drink cards
+memoized calculations for filtering and searching
+stable callback references
+bundle analysis with Expo Atlas
+analysis of large application assets
+TypeScript verification with no errors
+
 ## 📋 Main User Flow
 
 ### Welcome
@@ -707,6 +815,16 @@ The final project passes the TypeScript check without errors.
 ![Order Confirmation](./screenshots/OrderConfirmationPage.png)
 
 Users can navigate between the main sections using the custom bottom navigation and Drawer navigation.
+
+### Assignment 7 — Performance Optimization
+
+#### Animation — Favorite button
+
+![Assignment 7 — Favorite animation](./screenshots/assignment-7-animation.png)
+
+#### Bundle analysis — Expo Atlas
+
+![Assignment 7 — Bundle analysis](./screenshots/assignment-7-bundle-analysis.png)
 
 ### ☕ API Flow
 

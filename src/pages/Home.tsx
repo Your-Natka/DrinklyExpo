@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   FlatList,
   ScrollView,
@@ -8,6 +8,7 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
+
 import { ApiCoffee, fetchCoffee } from "../api/coffeeApi";
 import { useTheme } from "../context/ThemeContext";
 
@@ -19,7 +20,6 @@ import CategoryTabs from "../components/CategoryTabs";
 import DrinkCard from "../components/DrinkCard";
 import BottomNavigation from "../components/BottomNavigation";
 
-import { FONT_SIZES } from "../constants/typography";
 import { COLORS } from "../constants/colors";
 import { dimensions } from "../constants/dimensions";
 import { categories, drinks } from "../data/drinks";
@@ -47,8 +47,7 @@ export default function HomeScreen({
 }: HomeScreenProps) {
   const { width } = useWindowDimensions();
 
-  const { theme, toggleTheme } = useTheme();
-  const isDark = theme === "dark";
+  const { theme } = useTheme();
 
   const horizontalPadding =
     width <= 340 ? 14 : dimensions.layout.horizontalPadding;
@@ -68,6 +67,9 @@ export default function HomeScreen({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  /*
+   * API COFFEE
+   */
   useEffect(() => {
     const loadCoffee = async () => {
       try {
@@ -85,6 +87,44 @@ export default function HomeScreen({
 
     loadCoffee();
   }, []);
+
+  /*
+   * STABLE CALLBACKS
+   *
+   * These callbacks are passed directly to memoized DrinkCard components.
+   * They keep the same reference between renders unless their dependencies change.
+   */
+
+  const handleDrinkPress = useCallback(
+    (drink: Drink) => {
+      setSearch("");
+      onDrinkSelect(drink);
+    },
+    [onDrinkSelect],
+  );
+
+  const handleFavoriteToggle = useCallback(
+    (drinkId: string) => {
+      onToggleFavorite(drinkId);
+    },
+    [onToggleFavorite],
+  );
+
+  const handleCategoryChange = useCallback((category: HomeCategory) => {
+    setActiveCategory(category);
+    setSearch("");
+  }, []);
+
+  const handleCartPress = useCallback(() => {
+    onNavigate("cart");
+  }, [onNavigate]);
+
+  const handleApiCoffeePress = useCallback(
+    (itemId: string) => {
+      onApiCoffeeSelect(itemId);
+    },
+    [onApiCoffeeSelect],
+  );
 
   /*
    * POPULAR DRINKS
@@ -131,11 +171,6 @@ export default function HomeScreen({
 
   const catalogTitle = search.trim() ? "Search results" : activeCategory;
 
-  const handleCategoryChange = (category: HomeCategory) => {
-    setActiveCategory(category);
-    setSearch("");
-  };
-
   return (
     <View style={styles.screen}>
       <StatusBar />
@@ -154,7 +189,7 @@ export default function HomeScreen({
 
         <TouchableOpacity
           activeOpacity={0.8}
-          onPress={() => onNavigate("cart")}
+          onPress={handleCartPress}
           style={styles.iconButton}
         >
           <Icon name="cart" size={18} color={COLORS.primary} />
@@ -196,7 +231,9 @@ export default function HomeScreen({
             <View
               style={[
                 styles.sectionHeader,
-                { paddingHorizontal: horizontalPadding },
+                {
+                  paddingHorizontal: horizontalPadding,
+                },
               ]}
             >
               <Text style={styles.sectionTitle}>Popular</Text>
@@ -221,14 +258,9 @@ export default function HomeScreen({
                     <DrinkCard
                       drink={drink}
                       variant="popular"
-                      isFavorite={
-                        drink.popular === true || favorites.includes(drink.id)
-                      }
-                      onToggleFavorite={() => onToggleFavorite(drink.id)}
-                      onPress={() => {
-                        setSearch("");
-                        onDrinkSelect(drink);
-                      }}
+                      isFavorite={favorites.includes(drink.id)}
+                      onToggleFavorite={handleFavoriteToggle}
+                      onPress={handleDrinkPress}
                     />
                   </View>
                 ))}
@@ -241,7 +273,9 @@ export default function HomeScreen({
         <View
           style={[
             styles.catalogHeader,
-            { paddingHorizontal: horizontalPadding },
+            {
+              paddingHorizontal: horizontalPadding,
+            },
           ]}
         >
           <Text style={styles.catalogTitle}>{catalogTitle}</Text>
@@ -251,7 +285,9 @@ export default function HomeScreen({
         <View
           style={[
             styles.catalogSection,
-            { paddingHorizontal: horizontalPadding },
+            {
+              paddingHorizontal: horizontalPadding,
+            },
           ]}
         >
           <View style={styles.list}>
@@ -260,14 +296,9 @@ export default function HomeScreen({
                 key={drink.id}
                 drink={drink}
                 variant="horizontal"
-                isFavorite={
-                  drink.popular === true || favorites.includes(drink.id)
-                }
-                onToggleFavorite={() => onToggleFavorite(drink.id)}
-                onPress={() => {
-                  setSearch("");
-                  onDrinkSelect(drink);
-                }}
+                isFavorite={favorites.includes(drink.id)}
+                onToggleFavorite={handleFavoriteToggle}
+                onPress={handleDrinkPress}
               />
             ))}
 
@@ -279,11 +310,14 @@ export default function HomeScreen({
               </View>
             )}
           </View>
+
           {/* API COFFEE */}
           <View
             style={[
               styles.apiSection,
-              { paddingHorizontal: horizontalPadding },
+              {
+                paddingHorizontal: horizontalPadding,
+              },
             ]}
           >
             <Text style={styles.catalogTitle}>From API</Text>
@@ -299,7 +333,7 @@ export default function HomeScreen({
                 renderItem={({ item }) => (
                   <ApiCoffeeCard
                     coffee={item}
-                    onPress={() => onApiCoffeeSelect(item.id.toString())}
+                    onPress={() => handleApiCoffeePress(item.id.toString())}
                   />
                 )}
                 scrollEnabled={false}
